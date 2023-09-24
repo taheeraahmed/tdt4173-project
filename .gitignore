@@ -1,0 +1,38 @@
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environment (if you're using one)
+venv/
+env/
+tdt4173-project/
+
+# Data and model files (customize as needed)
+data/
+models/
+
+# Log files
+logs/
+
+# Compiled Python files
+__pycache__/
+
+# System or IDE-specific files
+.vscode/
+.idea/
+*.iml
+
+# Jupyter Notebook temporary files
+*.ipynb~ 
+*.swp
+
+# Python-specific
+*.pyc
+*.pyo
+__pycache__/
+*.egg-info/
+dist/
+build/
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
