@@ -6,7 +6,7 @@ def check_file_exists(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
 
-def read_data():
+def data_preprocess():
     '''
     Checks if the data exists and reads data from the parquet files 
     given from data.zip from the exercise
