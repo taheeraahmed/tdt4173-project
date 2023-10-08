@@ -179,7 +179,7 @@ def data_preprocess(one_hot_location: bool = False) -> pd.DataFrame:
     return X_train
 
 
-def get_training_data(X_train_with_targets: pd.DataFrame, features: list) -> tuple[pd.DataFrame, pd.DataFrame]:
+def get_training_data(X_train_with_targets: pd.DataFrame, features: list = []) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Gets training data for the specified features, and associated target values.
 
     Args:
@@ -192,7 +192,10 @@ def get_training_data(X_train_with_targets: pd.DataFrame, features: list) -> tup
     """
     
     targets = X_train_with_targets["pv_measurement"]
-    X_train = X_train_with_targets[features]
+    if features == []:
+        X_train = X_train_with_targets.drop(columns=["pv_measurement"])
+    else:
+        X_train = X_train_with_targets[features]
 
     return X_train, targets
 
