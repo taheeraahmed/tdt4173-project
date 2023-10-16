@@ -11,20 +11,26 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
 
 filename = "mse_results.txt"
 
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    mse = mean_squared_error(y_test, predictions)
+    return mse
 
-def write_to_file(filename,mse,scores, model, start_time):
+def write_to_file(filename, mse, scores, model, start_time):
     end_time = time.time()  # <- End the timer
     elapsed_time = end_time - start_time  # <- Calculate elapsed time
-    with open(filename, 'w') as file:
+    with open(filename, 'w+') as file:
+        file.write('-------------------------------\n')
         file.write(model + '\n')
         file.write('mse: ' + str(mse) + '\n')
-        file.write('cross_val_score: ' + str(scores) + '\n')
-        file.write('Elapsed time: ' + str(elapsed_time) + ' seconds\n\n')  # <- Write elapsed time
+        file.write('mean mse: ' + str(scores) + '\n')
+        file.write('elapsed time: ' + str(elapsed_time) + ' seconds\n\n')  # <- Write elapsed time
 
-def lin_reg(num, cat, X_train, y_train):
+def lin_reg(num, cat, X_train, y_train, X_test, y_test):
     start_time = time.time()  # <- Start the timer
     # Define preprocessor
     numeric_transformer = Pipeline(steps=[
@@ -47,16 +53,15 @@ def lin_reg(num, cat, X_train, y_train):
     # Fitting the model to your data
     model.fit(X_train, y_train)
 
-    # Making predictions
-    predictions = model.predict(X_train)
-
+    # Evaluate the model
+    mse = evaluate_model(model, X_test, y_test)
     scores = cross_val_score(model, X_train, y_train, cv=5)
-    mse = mean_squared_error(y_train, predictions)
+    mean_mse = -scores.mean()
 
     # Open the file with write ('w') or append ('a') mode and write the message
-    write_to_file(filename, mse, scores, 'Linear regressor', start_time)
+    write_to_file(filename, mse, mean_mse, 'Linear regressor', start_time)
 
-def random_forest(num, cat, X_train, y_train):
+def random_forest(num, cat, X_train, y_train, X_test, y_test):
     start_time = time.time()  # <- Start the timer
 
     numeric_transformer = Pipeline(steps=[
@@ -78,15 +83,14 @@ def random_forest(num, cat, X_train, y_train):
     # Fitting the model to your data
     model.fit(X_train, y_train)
 
-    # Making predictions
-    predictions = model.predict(X_train)
-
+    # Evaluate the model
+    mse = evaluate_model(model, X_test, y_test)
     scores = cross_val_score(model, X_train, y_train, cv=5)
-    mse = mean_squared_error(y_train, predictions)
+    mean_mse = -scores.mean()
 
-    write_to_file(filename, mse, scores, 'Random forest', start_time)
+    write_to_file(filename, mse, mean_mse, 'Random forest', start_time)
 
-def other_imputer(num, cat, X_train, y_train):
+def other_imputer(num, cat, X_train, y_train, X_test, y_test ):
     start_time = time.time()  # <- Start the timer
     numeric_transformer = Pipeline(steps=[
         ('imputer', KNNImputer()),
@@ -106,16 +110,17 @@ def other_imputer(num, cat, X_train, y_train):
         ('classifier', LinearRegression())])
     
     model.fit(X_train, y_train)
-    predictions = model.predict(X_train)
 
+    # Evaluate the model
+    mse = evaluate_model(model, X_test, y_test)
     scores = cross_val_score(model, X_train, y_train, cv=5)
-    mse = mean_squared_error(y_train, predictions)
+    mean_mse = -scores.mean()
 
-    write_to_file(filename, mse, scores, 'Other imputer', start_time)
+    write_to_file(filename, mse, mean_mse, 'Other imputer', start_time)
 
     return model
     
-def grid_search(num, cat, X_train, y_train):
+def grid_search(num, cat, X_train, y_train, X_test, y_test ):
 
     start_time = time.time()  # <- Start the timer
     param_grid = [
@@ -140,35 +145,36 @@ def grid_search(num, cat, X_train, y_train):
     best_model = grid_search.best_estimator_
     best_model.fit(X_train, y_train)
 
-    # Make predictions
-    predictions = best_model.predict(X_train)
-
     # Evaluate the model
-    mse = mean_squared_error(y_train, predictions)
+    mse = evaluate_model(model, X_test, y_test)
     scores = cross_val_score(model, X_train, y_train, cv=5)
+    mean_mse = -scores.mean()
 
-    write_to_file(filename, mse, scores, 'Grid search', start_time)
+    write_to_file(filename, mse, mean_mse, 'Grid search', start_time)
 
 def main():
     print('It has begun')
     # Specify the filename
     print('Preprocessing data')
+    # Split the data into training and testing sets
     data = data_preprocess(one_hot_location=True)
-    X_train, y_train = get_training_data(data)
-    X_train = X_train.drop(columns=['time', 'date_calc'])
+    X, y = get_training_data(data)
+    X = X.drop(columns=['time', 'date_calc'])
     print('Done with preprocessing data')
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
 
     numeric_features = X_train.select_dtypes(include=['float32']).columns.tolist()
     categorical_features = X_train.select_dtypes(include=['object']).columns.tolist()
 
     print('Linear regression')
-    lin_reg(numeric_features, categorical_features, X_train, y_train)
+    lin_reg(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
     print('Random forest')
-    random_forest(numeric_features, categorical_features, X_train, y_train)
+    random_forest(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
     print('Other imputer')
-    _ = other_imputer(numeric_features, categorical_features, X_train, y_train)
+    _ = other_imputer(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
     print('Grid search')
-    grid_search(numeric_features, categorical_features, X_train, y_train)
+    grid_search(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
 
 
 
