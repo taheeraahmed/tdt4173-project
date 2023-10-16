@@ -2,6 +2,9 @@
 (TODO:) make get_input_data work for non-hot-encoding of location 
 """
 
+from typing import Tuple
+import pandas as pd
+
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
@@ -86,7 +89,10 @@ def data_preprocess(one_hot_location: bool = False) -> pd.DataFrame:
     return X_train
 
 
-def get_training_data(X_train_with_targets: pd.DataFrame, features: list = []) -> tuple[pd.DataFrame, pd.DataFrame]:
+def get_training_data(
+    X_train_with_targets: pd.DataFrame, 
+    features: list = []
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Gets training data for the specified features, and associated target values.
 
     Args:
