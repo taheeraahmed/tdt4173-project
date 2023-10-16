@@ -150,17 +150,24 @@ def grid_search(num, cat, X_train, y_train):
     write_to_file(filename, mse, scores, 'Grid search', start_time)
 
 def main():
+    print('It has begun')
     # Specify the filename
+    print('Preprocessing data')
     data = data_preprocess(one_hot_location=True)
     X_train, y_train = get_training_data(data)
     X_train = X_train.drop(columns=['time', 'date_calc'])
+    print('Done with preprocessing data')
 
     numeric_features = X_train.select_dtypes(include=['float32']).columns.tolist()
     categorical_features = X_train.select_dtypes(include=['object']).columns.tolist()
 
+    print('Linear regression')
     lin_reg(numeric_features, categorical_features, X_train, y_train)
+    print('Random forest')
     random_forest(numeric_features, categorical_features, X_train, y_train)
+    print('Other imputer')
     _ = other_imputer(numeric_features, categorical_features, X_train, y_train)
+    print('Grid search')
     grid_search(numeric_features, categorical_features, X_train, y_train)
 
 
