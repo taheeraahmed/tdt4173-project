@@ -1,4 +1,4 @@
-from data_preprocess import data_preprocess, get_training_data, get_input_data, prepare_submission
+from data_preprocess import data_preprocess, get_training_data
 import pandas as pd
 import numpy as np
 import time
@@ -12,27 +12,69 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+import mlflow
+from mlflow.tracking import MlflowClient
+import random
+import nltk
+from nltk.corpus import words as nltk_words
 
-filename = "mse_results.txt"
+
+def generate_run_name():
+    nltk.download("words")
+    english_words = nltk_words.words()
+    random_words = random.sample(english_words, 2)
+    run_name = " ".join(random_words)
+    run_name = run_name.title()  # Capitalize the first letter of each word
+    return run_name
+
+# enable autologging
+mlflow.sklearn.autolog()
+filename = "logging.txt"
+
+
+def fetch_logged_data(run_id):
+    client = MlflowClient()
+    data = client.get_run(run_id).data
+    tags = {k: v for k, v in data.tags.items() if not k.startswith("mlflow.")}
+    artifacts = [f.path for f in client.list_artifacts(run_id, "model")]
+    return data.params, data.metrics, tags, artifacts
 
 def evaluate_model(model, X_test, y_test):
     predictions = model.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
     return mse
 
-def write_to_file(filename, mse, scores, model, start_time):
+def write_to_file(logged_data, start_time, filename = "mse_results.txt"):
     end_time = time.time()  # <- End the timer
     elapsed_time = end_time - start_time  # <- Calculate elapsed time
-    with open(filename, 'w+') as file:
+    with open(filename, 'a') as file:
         file.write('-------------------------------\n')
-        file.write(model + '\n')
-        file.write('mse: ' + str(mse) + '\n')
-        file.write('mean mse: ' + str(scores) + '\n')
-        file.write('elapsed time: ' + str(elapsed_time) + ' seconds\n\n')  # <- Write elapsed time
 
-def lin_reg(num, cat, X_train, y_train, X_test, y_test):
+        file.write('Name \n')
+        file.write(str(logged_data['name']) + '\n')
+
+        file.write('Run name \n')
+        file.write(str(logged_data['run_name']) + '\n')
+
+        file.write('Metrics \n')
+        file.write(str(logged_data['metrics']) + '\n')
+
+        best_model = logged_data.get('best_model')
+        if best_model:
+            file.write('Best model \n')
+            file.write(str(best_model) + '\n')
+
+        best_params = logged_data.get('best_params')
+        if best_params:
+            file.write('Best params \n')
+            file.write(str(best_params) + '\n')
+
+        file.write('Elapsed time \n')
+        file.write(str(elapsed_time) + ' seconds\n\n')
+
+def lin_reg(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
-    # Define preprocessor
+
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='mean')),
         ('scaler', StandardScaler())])
@@ -45,23 +87,38 @@ def lin_reg(num, cat, X_train, y_train, X_test, y_test):
             ('num', numeric_transformer, num),
             ('cat', categorical_transformer, cat)])
 
-    # Define model
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
         ('classifier', LinearRegression())])
 
-    # Fitting the model to your data
-    model.fit(X_train, y_train)
+    run_name = generate_run_name()
+    with mlflow.start_run(run_name=run_name) as run:
+        # Perform 5-fold cross-validation and calculate the metrics for each fold
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        
+        # Convert negative MSE to positive (optional, depends on your preference)
+        mse_values = -scores
+        
+        # Log the metrics
+        for i, mse in enumerate(mse_values):
+            mlflow.log_metric(f'MSE_fold_{i}', mse)
+        
+        # Fetch and print logged data
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
 
-    # Evaluate the model
-    mse = evaluate_model(model, X_test, y_test)
-    scores = cross_val_score(model, X_train, y_train, cv=5)
-    mean_mse = -scores.mean()
 
-    # Open the file with write ('w') or append ('a') mode and write the message
-    write_to_file(filename, mse, mean_mse, 'Linear regressor', start_time)
+    logged_data = {
+        'name': 'Linear regression',
+        'run_name': run_name,
+        'params': params,
+        'metrics': metrics,
+        'tags': tags, 
+        'artifacts': artifacts,
+    }
 
-def random_forest(num, cat, X_train, y_train, X_test, y_test):
+    write_to_file(logged_data, start_time)
+
+def random_forest(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
 
     numeric_transformer = Pipeline(steps=[
@@ -80,17 +137,34 @@ def random_forest(num, cat, X_train, y_train, X_test, y_test):
         ('preprocessor', preprocessor),
         ('classifier', RandomForestRegressor())])
 
-    # Fitting the model to your data
-    model.fit(X_train, y_train)
+    run_name = generate_run_name()
+    with mlflow.start_run(run_name=run_name) as run:
+        # Perform 5-fold cross-validation and calculate the metrics for each fold
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        
+        # Convert negative MSE to positive (optional, depends on your preference)
+        mse_values = -scores
+        
+        # Log the metrics
+        for i, mse in enumerate(mse_values):
+            mlflow.log_metric(f'MSE_fold_{i}', mse)
+        
+        # Fetch and print logged data
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
 
-    # Evaluate the model
-    mse = evaluate_model(model, X_test, y_test)
-    scores = cross_val_score(model, X_train, y_train, cv=5)
-    mean_mse = -scores.mean()
 
-    write_to_file(filename, mse, mean_mse, 'Random forest', start_time)
+    logged_data = {
+        'name': 'Random forest',
+        'run_name': run_name,
+        'params': params,
+        'metrics': metrics,
+        'tags': tags, 
+        'artifacts': artifacts,
+    }
 
-def other_imputer(num, cat, X_train, y_train, X_test, y_test ):
+    write_to_file(logged_data, start_time)
+
+def other_imputer(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
     numeric_transformer = Pipeline(steps=[
         ('imputer', KNNImputer()),
@@ -109,55 +183,113 @@ def other_imputer(num, cat, X_train, y_train, X_test, y_test ):
         ('preprocessor', preprocessor),
         ('classifier', LinearRegression())])
     
-    model.fit(X_train, y_train)
+    run_name = generate_run_name()
+    with mlflow.start_run(run_name=run_name) as run:
+        # Perform 5-fold cross-validation and calculate the metrics for each fold
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        
+        # Convert negative MSE to positive (optional, depends on your preference)
+        mse_values = -scores
+        
+        # Log the metrics
+        for i, mse in enumerate(mse_values):
+            mlflow.log_metric(f'MSE_fold_{i}', mse)
+        
+        # Fetch and print logged data
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
 
-    # Evaluate the model
-    mse = evaluate_model(model, X_test, y_test)
-    scores = cross_val_score(model, X_train, y_train, cv=5)
-    mean_mse = -scores.mean()
 
-    write_to_file(filename, mse, mean_mse, 'Other imputer', start_time)
+    logged_data = {
+        'name': 'Other imputer',
+        'run_name': run_name,
+        'params': params,
+        'metrics': metrics,
+        'tags': tags, 
+        'artifacts': artifacts,
+    }
+
+    write_to_file(logged_data, start_time)
 
     return model
     
-def grid_search(num, cat, X_train, y_train, X_test, y_test ):
+def grid_search(num, cat, X_train, y_train):
 
     start_time = time.time()  # <- Start the timer
     param_grid = [
         {"n_estimators": [70, 80, 90], "max_features": [3]},
         {"bootstrap": [False], "n_estimators": [70, 80, 90], "max_features": [3]}
         ]
-    # Create a grid search object
+
     model = other_imputer(num, cat, X_train, y_train)
     grid_search = GridSearchCV(model, param_grid, cv=5, scoring='neg_mean_squared_error')
 
-    # Fit the grid search object to your data
-    grid_search.fit(X_train, y_train)
+    run_name = generate_run_name()
+    with mlflow.start_run(run_name=run_name) as run:
+        # Perform 5-fold cross-validation and calculate the metrics for each fold
+        scores = cross_val_score(grid_search, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        
+        # Convert negative MSE to positive (optional, depends on your preference)
+        mse_values = -scores
+        
+        # Log the metrics
+        for i, mse in enumerate(mse_values):
+            mlflow.log_metric(f'MSE_fold_{i}', mse)
+        
+        # Fetch and print logged data
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
 
-    # Get the best parameters
+
+    logged_data = {
+        'name': 'Grid search',
+        'run_name': run_name,
+        'params': params,
+        'metrics': metrics,
+        'tags': tags, 
+        'artifacts': artifacts,
+    }
+
+    write_to_file(logged_data, start_time)
+
     best_params = grid_search.best_params_
-
-    # Print the best parameters
-    with open(filename, 'w') as file:
-        file.write("Grid search best parameters: ", best_params)
 
     # Fit the model with the best parameters to your data
     best_model = grid_search.best_estimator_
-    best_model.fit(X_train, y_train)
+    
+    run_name = generate_run_name()
+    
+    with mlflow.start_run(run_name=run_name) as run:
+        # Perform 5-fold cross-validation and calculate the metrics for each fold
+        scores = cross_val_score(best_model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        
+        # Convert negative MSE to positive (optional, depends on your preference)
+        mse_values = -scores
+        
+        # Log the metrics
+        for i, mse in enumerate(mse_values):
+            mlflow.log_metric(f'MSE_fold_{i}', mse)
+        
+        # Fetch and print logged data
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
 
-    # Evaluate the model
-    mse = evaluate_model(model, X_test, y_test)
-    scores = cross_val_score(model, X_train, y_train, cv=5)
-    mean_mse = -scores.mean()
 
-    write_to_file(filename, mse, mean_mse, 'Grid search', start_time)
+    logged_data = {
+        'name': 'Grid search (best model)',
+        'run_name': run_name,
+        'params': params,
+        'metrics': metrics,
+        'tags': tags, 
+        'artifacts': artifacts,
+        'best_params': best_params,
+        'best_model': best_model
+    }
+
+    write_to_file(logged_data, start_time)
 
 def main():
     print('It has begun')
-    # Specify the filename
     print('Preprocessing data')
-    # Split the data into training and testing sets
-    data = data_preprocess(one_hot_location=True)
+
+    data = data_preprocess(one_hot_location=False)
     X, y = get_training_data(data)
     X = X.drop(columns=['time', 'date_calc'])
     print('Done with preprocessing data')
@@ -169,12 +301,10 @@ def main():
 
     print('Linear regression')
     lin_reg(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
-    print('Random forest')
-    random_forest(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
-    print('Other imputer')
-    _ = other_imputer(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
-    print('Grid search')
-    grid_search(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
+
+    print('Linear regression')
+    lin_reg(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
+    
 
 
 

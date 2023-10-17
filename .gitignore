@@ -5,6 +5,10 @@
 venv/
 env/
 tdt4173-project/
+mlruns/
+.venv/
+
+*.txt
 
 # Data and model files (customize as needed)
 models/
