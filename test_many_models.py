@@ -34,7 +34,7 @@ filename = "logging.txt"
 # TODO Suppress warnings
 
 def log(string): 
-    print(today.strftime("%m/%d/%y") + ' ' +time.time()+ ' LOG '+ string)
+    print(today.strftime("%m/%d/%y") + ' ' + time.time() + ' LOG '+ string)
 
 def generate_run_name():
     english_words = nltk_words.words()
@@ -62,11 +62,14 @@ def write_to_file(logged_data, start_time, filename = "logging.txt"):
     with open(filename, 'a') as file:
         file.write('-------------------------------\n')
 
-        file.write('Name \n')
+        file.write('Name: ')
         file.write(str(logged_data['name']) + '\n')
 
-        file.write('Run name \n')
+        file.write('Run name: ')
         file.write(str(logged_data['run_name']) + '\n')
+
+        file.write('Elapsed time: ')
+        file.write(str(elapsed_time) + ' seconds \n')
 
         file.write('Metrics \n')
         file.write(str(logged_data['metrics']) + '\n')
@@ -80,9 +83,7 @@ def write_to_file(logged_data, start_time, filename = "logging.txt"):
         if best_params:
             file.write('Best params \n')
             file.write(str(best_params) + '\n')
-
-        file.write('Elapsed time \n')
-        file.write(str(elapsed_time) + ' seconds\n\n')
+        
 
 def lin_reg(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
