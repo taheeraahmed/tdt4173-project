@@ -17,14 +17,27 @@ from mlflow.tracking import MlflowClient
 import random
 import nltk
 from nltk.corpus import words as nltk_words
+import xgboost as xgb  # Import XGBoost
+import warnings
 
+warnings.filterwarnings("ignore", category=UserWarning, module="_distutils_hack")
+warnings.filterwarnings("ignore", category=FutureWarning, module="mlflow.data.digest_utils")
+nltk.download("words")
+
+
+# TODO Se på model evaluation i mlflow
+# TODO Suppress warnings
+# TODO XGBoost
+
+def log(string): 
+    print('[LOG]    ' + time.time() + string)
 
 def generate_run_name():
-    nltk.download("words")
     english_words = nltk_words.words()
     random_words = random.sample(english_words, 2)
     run_name = " ".join(random_words)
     run_name = run_name.title()  # Capitalize the first letter of each word
+    log(run_name)
     return run_name
 
 # enable autologging
@@ -89,7 +102,7 @@ def lin_reg(num, cat, X_train, y_train):
 
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('classifier', LinearRegression())])
+        ('regressor', LinearRegression())])
 
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
@@ -118,6 +131,51 @@ def lin_reg(num, cat, X_train, y_train):
 
     write_to_file(logged_data, start_time)
 
+def xgbost_model(num, cat, X_train, y_train):
+    start_time = time.time()  # <- Start the timer
+
+    numeric_transformer = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='mean')),
+        ('scaler', StandardScaler())])
+
+    categorical_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, num),
+            ('cat', categorical_transformer, cat)])
+
+    model = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', xgb.XGBRegressor())])  # Use XGBRegressor
+
+    run_name = generate_run_name()
+    with mlflow.start_run(run_name=run_name) as run:
+        # Perform 5-fold cross-validation and calculate the metrics for each fold
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        
+        # Convert negative MSE to positive (optional, depends on your preference)
+        mse_values = -scores
+        
+        # Log the metrics
+        for i, mse in enumerate(mse_values):
+            mlflow.log_metric(f'MSE_fold_{i}', mse)
+        
+        # Fetch and print logged data
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
+
+    logged_data = {
+        'name': 'XGBoost',
+        'run_name': run_name,
+        'params': params,
+        'metrics': metrics,
+        'tags': tags, 
+        'artifacts': artifacts,
+    }
+
+    write_to_file(logged_data, start_time)
+
 def random_forest(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
 
@@ -135,7 +193,7 @@ def random_forest(num, cat, X_train, y_train):
 
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('classifier', RandomForestRegressor())])
+        ('regressor', RandomForestRegressor())])
 
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
@@ -181,7 +239,7 @@ def other_imputer(num, cat, X_train, y_train):
 
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('classifier', LinearRegression())])
+        ('regressor', LinearRegression())])
     
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
@@ -286,25 +344,35 @@ def grid_search(num, cat, X_train, y_train):
     write_to_file(logged_data, start_time)
 
 def main():
-    print('It has begun')
-    print('Preprocessing data')
+    log('Preprocessing data')
 
     data = data_preprocess(one_hot_location=False)
     X, y = get_training_data(data)
     X = X.drop(columns=['time', 'date_calc'])
-    print('Done with preprocessing data')
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    log('Done with preprocessing data')
+    X_train, _, y_train, _ = train_test_split(X, y, test_size=0.1, random_state=42)
 
 
     numeric_features = X_train.select_dtypes(include=['float32']).columns.tolist()
     categorical_features = X_train.select_dtypes(include=['object']).columns.tolist()
+    log('The training is beginning')
 
-    print('Linear regression')
-    lin_reg(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
+    log('XGBoost')
+    xgbost_model(numeric_features, categorical_features, X_train, y_train)
 
-    print('Linear regression')
-    lin_reg(numeric_features, categorical_features, X_train, y_train, X_test, y_test)
-    
+    log('Linear regression')
+    lin_reg(numeric_features, categorical_features, X_train, y_train)
+
+    log('Random forest')
+    random_forest(numeric_features, categorical_features, X_train, y_train)
+
+    log('Other imputer')
+    other_imputer(numeric_features, categorical_features, X_train, y_train)
+
+    log('Grid search')
+    grid_search(numeric_features, categorical_features, X_train, y_train)
+
+
 
 
 
