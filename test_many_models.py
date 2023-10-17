@@ -1,4 +1,4 @@
-from data_preprocess import data_preprocess, get_training_data
+from data_preprocess import data_preprocess, get_training_data, get_input_data
 import pandas as pd
 import numpy as np
 import time
@@ -19,18 +19,22 @@ import nltk
 from nltk.corpus import words as nltk_words
 import xgboost as xgb  # Import XGBoost
 import warnings
+from datetime import date
 
+today = date.today()
 warnings.filterwarnings("ignore", category=UserWarning, module="_distutils_hack")
 warnings.filterwarnings("ignore", category=FutureWarning, module="mlflow.data.digest_utils")
 nltk.download("words")
 
+# enable autologging
+mlflow.sklearn.autolog()
+filename = "logging.txt"
 
 # TODO Se på model evaluation i mlflow
 # TODO Suppress warnings
-# TODO XGBoost
 
 def log(string): 
-    print('[LOG]    ' + time.time() + string)
+    print(today.strftime("%m/%d/%y") + ' ' +time.time()+ ' LOG '+ string)
 
 def generate_run_name():
     english_words = nltk_words.words()
@@ -39,11 +43,6 @@ def generate_run_name():
     run_name = run_name.title()  # Capitalize the first letter of each word
     log(run_name)
     return run_name
-
-# enable autologging
-mlflow.sklearn.autolog()
-filename = "logging.txt"
-
 
 def fetch_logged_data(run_id):
     client = MlflowClient()
@@ -57,7 +56,7 @@ def evaluate_model(model, X_test, y_test):
     mse = mean_squared_error(y_test, predictions)
     return mse
 
-def write_to_file(logged_data, start_time, filename = "mse_results.txt"):
+def write_to_file(logged_data, start_time, filename = "logging.txt"):
     end_time = time.time()  # <- End the timer
     elapsed_time = end_time - start_time  # <- Calculate elapsed time
     with open(filename, 'a') as file:
@@ -350,8 +349,7 @@ def main():
     X, y = get_training_data(data)
     X = X.drop(columns=['time', 'date_calc'])
     log('Done with preprocessing data')
-    X_train, _, y_train, _ = train_test_split(X, y, test_size=0.1, random_state=42)
-
+    X_train, _, y_train, _ = train_test_split(X, y, test_size=0, random_state=42)
 
     numeric_features = X_train.select_dtypes(include=['float32']).columns.tolist()
     categorical_features = X_train.select_dtypes(include=['object']).columns.tolist()
