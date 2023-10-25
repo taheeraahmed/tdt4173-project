@@ -5,9 +5,6 @@ from data_preprocess import data_preprocess, get_training_data
 import logging
 from utils.set_up import set_up
 
-
-
-
 def main():
     set_up()
     logger = logging.getLogger()
