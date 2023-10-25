@@ -1,8 +1,7 @@
-# Group and sort imports
 import warnings
-import models
-import utils
+from models.lin_reg import lin_reg
 from sklearn.model_selection import train_test_split
+from data_preprocess import data_preprocess, get_training_data
 import logging
 
 # Constants
@@ -20,8 +19,8 @@ def main():
     logger = logging.getLogger()
     logger.info('Preprocessing data')
 
-    data = utils.data_preprocess(one_hot_location=False)
-    X, y = utils.get_training_data(data)
+    data = data_preprocess(one_hot_location=False)
+    X, y = get_training_data(data)
     X = X.drop(columns=['time', 'date_calc'])
     logger.info('Done with preprocessing data')
     X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -31,7 +30,7 @@ def main():
     logger.info('The training is beginning')
 
     logger.info('Linear regression')
-    models.lin_reg(numeric_features, categorical_features, X_train, y_train)
+    lin_reg(numeric_features, categorical_features, X_train, y_train)
 
 
 

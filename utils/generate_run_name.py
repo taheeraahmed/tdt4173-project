@@ -1,7 +1,6 @@
 import nltk
 import random
 from nltk.corpus import words as nltk_words
-import utils
 import logging
 
 nltk.download("words")

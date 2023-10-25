@@ -5,8 +5,12 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_score
 
+from utils.generate_run_name import generate_run_name
+from utils.write_to_file import write_to_file
+from utils.log import fetch_logged_data
+
 import mlflow
-import utils
+import time
 
 def lin_reg(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
@@ -27,7 +31,7 @@ def lin_reg(num, cat, X_train, y_train):
         ('preprocessor', preprocessor),
         ('regressor', LinearRegression())])
 
-    run_name = utils.generate_run_name()
+    run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         # Perform 5-fold cross-validation and calculate the metrics for each fold
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
@@ -40,12 +44,12 @@ def lin_reg(num, cat, X_train, y_train):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
         
         # Fetch and print logged data
-        params, metrics, tags, artifacts, time = utils.fetch_logged_data(run.info.run_id)
+        params, metrics, tags, artifacts, log_time = fetch_logged_data(run.info.run_id)
         
 
     logged_data = {
         'name': 'Linear regression',
-        'time': time,
+        'time': log_time,
         'run_name': run_name,
         'params': params,
         'metrics': metrics,
@@ -53,4 +57,4 @@ def lin_reg(num, cat, X_train, y_train):
         'artifacts': artifacts,
     }
 
-    utils.write_to_file(logged_data, start_time)
+    write_to_file(logged_data, start_time)
