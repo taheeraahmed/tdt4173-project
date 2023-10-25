@@ -1,5 +1,6 @@
 import warnings
 from models.lin_reg import lin_reg
+from models.random_forest import random_forest
 from sklearn.model_selection import train_test_split
 from data_preprocess import data_preprocess, get_training_data
 import logging
@@ -22,6 +23,9 @@ def main():
 
     logger.info('Linear regression')
     lin_reg(numeric_features, categorical_features, X_train, y_train)
+
+    logger.info('Random forest regression')
+    random_forest(numeric_features, categorical_features, X_train, y_train)
 
 
 if __name__ == "__main__":
