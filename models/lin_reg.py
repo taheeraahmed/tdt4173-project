@@ -12,6 +12,18 @@ import mlflow
 import time
 
 def lin_reg(num, cat, X_train, y_train):
+    """
+    Train a linear regression model using given training data and log the results using MLflow.
+
+    Parameters:
+    - num (list): List of numerical feature names.
+    - cat (list): List of categorical feature names.
+    - X_train (DataFrame): Training data features.
+    - y_train (Series): Training data target values.
+
+    Returns:
+    None. The function logs the training results using MLflow and writes the logged data to a file.
+    """
     start_time = time.time()  # <- Start the timer
 
     numeric_transformer = Pipeline(steps=[
