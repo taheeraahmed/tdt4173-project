@@ -39,7 +39,6 @@ def random_forest(num, cat, X_train, y_train):
         for i, mse in enumerate(mse_values):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
         
-        # Fetch and print logged data
         params, metrics, tags, artifacts, time = utils.fetch_logged_data(run.info.run_id)
 
 

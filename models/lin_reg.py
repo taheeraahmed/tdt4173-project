@@ -6,8 +6,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_score
 
 from utils.generate_run_name import generate_run_name
-from utils.write_to_file import write_to_file
-from utils.log import fetch_logged_data
+from utils.log_model import fetch_logged_data, write_to_file
 
 import mlflow
 import time
