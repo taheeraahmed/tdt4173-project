@@ -1,18 +1,12 @@
-import time
-
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
-
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-import time
 import mlflow
 import utils
 from sklearn.model_selection import cross_val_score
-
-from data_preprocess import data_preprocess, get_training_data, get_input_data
 
 def random_forest(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
@@ -46,12 +40,13 @@ def random_forest(num, cat, X_train, y_train):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
         
         # Fetch and print logged data
-        params, metrics, tags, artifacts = utils.fetch_logged_data(run.info.run_id)
+        params, metrics, tags, artifacts, time = utils.fetch_logged_data(run.info.run_id)
 
 
     logged_data = {
         'name': 'Random forest',
         'run_name': run_name,
+        'time': time,
         'params': params,
         'metrics': metrics,
         'tags': tags, 

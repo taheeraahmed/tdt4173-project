@@ -1,8 +1,7 @@
 from sklearn.linear_model import LinearRegression
-import time
 import mlflow
 import utils
-from sklearn.model_selection import cross_val_score, GridSearchCV, train_test_split
+from sklearn.model_selection import cross_val_score, GridSearchCV
 
 def grid_search(num, cat, X_train, y_train):
     start_time = time.time()  # <- Start the timer
@@ -21,12 +20,13 @@ def grid_search(num, cat, X_train, y_train):
         grid_search.fit(X_train, y_train)
         for i, mse in enumerate(mse_values):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
-        params, metrics, tags, artifacts = utils.fetch_logged_data(run.info.run_id)
+        params, metrics, tags, artifacts, time = utils.fetch_logged_data(run.info.run_id)
 
 
     logged_data = {
         'name': 'Grid search',
         'run_name': run_name,
+        'time': time,
         'params': params,
         'metrics': metrics,
         'tags': tags, 
@@ -41,10 +41,11 @@ def grid_search(num, cat, X_train, y_train):
         mse_values = -scores
         for i, mse in enumerate(mse_values):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
-        params, metrics, tags, artifacts = utils.fetch_logged_data(run.info.run_id)
+        params, metrics, tags, artifacts, time = utils.fetch_logged_data(run.info.run_id)
 
     logged_data = {
         'name': 'Grid search (best model)',
+        'time': time,
         'run_name': run_name,
         'params': params,
         'metrics': metrics,

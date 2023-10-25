@@ -1,15 +1,14 @@
-import time
 
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.model_selection import cross_val_score
+
 import xgboost as xgb
 
 import mlflow
 import utils
-from sklearn.model_selection import cross_val_score
 
 
 def xgbost_model(num, cat, X_train, y_train):
@@ -44,11 +43,12 @@ def xgbost_model(num, cat, X_train, y_train):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
         
         # Fetch and print logged data
-        params, metrics, tags, artifacts = utils.fetch_logged_data(run.info.run_id)
+        params, metrics, tags, artifacts, time = utils.fetch_logged_data(run.info.run_id)
 
     logged_data = {
         'name': 'XGBoost',
         'run_name': run_name,
+        'time': time,
         'params': params,
         'metrics': metrics,
         'tags': tags, 

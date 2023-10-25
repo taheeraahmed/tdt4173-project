@@ -5,8 +5,6 @@ import utils
 from sklearn.model_selection import train_test_split
 import logging
 
-from data_preprocess import data_preprocess, get_training_data
-
 # Constants
 FILENAME = "logging.txt"
 WARNINGS_TO_SUPPRESS = [
@@ -22,8 +20,8 @@ def main():
     logger = logging.getLogger()
     logger.info('Preprocessing data')
 
-    data = data_preprocess(one_hot_location=False)
-    X, y = get_training_data(data)
+    data = utils.data_preprocess(one_hot_location=False)
+    X, y = utils.get_training_data(data)
     X = X.drop(columns=['time', 'date_calc'])
     logger.info('Done with preprocessing data')
     X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=42)
