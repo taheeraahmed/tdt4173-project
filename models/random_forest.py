@@ -12,7 +12,7 @@ import mlflow
 import time
 
 def random_forest(num, cat, X_train, y_train):
-    start_time = time.time()  # <- Start the timer
+    start_time = time.time()  
 
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='mean')),

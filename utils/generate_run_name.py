@@ -3,9 +3,19 @@ import random
 from nltk.corpus import words as nltk_words
 import logging
 
-nltk.download("words")
+def download_nltk_words():
+    try:
+        # Check if the "words" dataset is already downloaded
+        nltk.data.find('corpora/words')
+        logger = logging.getLogger()
+        logger.info("NLTK 'words' dataset is already downloaded.")
+    except LookupError:
+        # If not found, download it
+        nltk.download("words")
+        logger.info("NLTK 'words' dataset is downloaded.")
 
 def generate_run_name():
+    download_nltk_words()
     logger = logging.getLogger()
     english_words = nltk_words.words()
     random_words = random.sample(english_words, 2)
