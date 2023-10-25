@@ -5,7 +5,7 @@ from data_preprocess import data_preprocess, get_training_data
 import logging
 
 # Constants
-FILENAME = "logging.txt"
+LOG_FILE = "log_file.txt"
 WARNINGS_TO_SUPPRESS = [
     ("ignore", UserWarning, "_distutils_hack"),
     ("ignore", FutureWarning, "mlflow.data.digest_utils")
@@ -14,6 +14,13 @@ WARNINGS_TO_SUPPRESS = [
 for action, category, module in WARNINGS_TO_SUPPRESS:
     warnings.filterwarnings(action, category=category, module=module)
 
+# Set up logging
+logging.basicConfig(level=logging.INFO, 
+                    format='[%(levelname)s] %(asctime)s - %(message)s',
+                    handlers=[
+                        logging.FileHandler(LOG_FILE),
+                        logging.StreamHandler()
+                    ])
 
 def main():
     logger = logging.getLogger()
@@ -31,9 +38,6 @@ def main():
 
     logger.info('Linear regression')
     lin_reg(numeric_features, categorical_features, X_train, y_train)
-
-
-
 
 
 if __name__ == "__main__":
