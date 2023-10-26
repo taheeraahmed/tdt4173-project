@@ -1,3 +1,5 @@
+"""Example of stacked model using random forests and sklearn pipelines."""
+
 from data_preprocess import data_preprocess, get_input_data, get_training_data, prepare_submission
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -128,7 +130,7 @@ meta_learner = LinearRegression()
 # Create the stacking regressor
 stacked_model = StackingRegressor(estimators=base_models, final_estimator=meta_learner)
 
-
+#NOTE: can instead of using the sacked model just run a single model below:
 whole_model_pipeline = Pipeline([
     ('data_process', data_process_pipeline),
     ('stacked_model', stacked_model)
@@ -143,4 +145,4 @@ predictions = whole_model_pipeline.predict(X_test[features])
 
 submission = prepare_submission(X_test, predictions)
 
-submission.to_csv('stacked_forests_onehot.csv', index=False)
+submission.to_csv('submissions/stacked_forests_onehot.csv', index=False)
