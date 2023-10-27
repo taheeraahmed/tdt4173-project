@@ -8,11 +8,9 @@ def download_nltk_words():
         # Check if the "words" dataset is already downloaded
         nltk.data.find('corpora/words')
         logger = logging.getLogger()
-        logger.info("NLTK 'words' dataset is already downloaded.")
     except LookupError:
         # If not found, download it
         nltk.download("words")
-        logger.info("NLTK 'words' dataset is downloaded.")
 
 def generate_run_name():
     download_nltk_words()
