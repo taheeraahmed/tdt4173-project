@@ -63,6 +63,7 @@ def lin_reg(num, cat, X_train, y_train):
     
     logged_data = {
         'name': 'Linear regression',
+        'start_time': start_time,
         'run_name': run_name,
         'params': params,
         'metrics': metrics,
@@ -70,4 +71,5 @@ def lin_reg(num, cat, X_train, y_train):
         'artifacts': artifacts,
     }
 
-    write_to_file(logged_data, start_time)
+
+    write_to_file(logged_data)

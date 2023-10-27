@@ -4,7 +4,6 @@ from datetime import datetime
 
 
 def fetch_logged_data(run_id):
-    # Create an instance of the MlflowClient
     client = MlflowClient()
     
     data = client.get_run(run_id).data
@@ -13,9 +12,10 @@ def fetch_logged_data(run_id):
     
     return data.params, data.metrics, tags, artifacts
 
-def write_to_file(logged_data, start_time, filename = "log_model.txt"):
+def write_to_file(logged_data):
+    filename = "log_model.txt"
     end_time = time.time()  # <- End the timer
-    elapsed_time = end_time - start_time  # <- Calculate elapsed time
+    elapsed_time = end_time - logged_data['start_time']  # <- Calculate elapsed time
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     with open(filename, 'a') as file:
