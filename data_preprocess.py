@@ -113,9 +113,10 @@ def get_training_data(
     return X_train, targets
 
 
-def get_input_data() -> pd.DataFrame:
+def get_input_data(drop_time_date: bool) -> pd.DataFrame:
     """Loads test-data and merges (the time-points to make predictions for) into a single dataframe along with id's for submission.
-
+    Params: 
+        drop_time_date (bool): Drop columns time and date
     Returns:
         test_data (pd.DataFrame): df with timepoints to make predictions for, and features for these timepoints
     """    
@@ -170,22 +171,9 @@ def get_input_data() -> pd.DataFrame:
     # merge 
     test_data = pd.merge(X_test, test, on=["time", "A", "B", "C"])
 
+    if drop_time_date: 
+        test_data = X_test.drop(columns=['time', 'date_calc'])
+
     return test_data
 
 
-def prepare_submission(X_test: pd.DataFrame, predictions) -> pd.DataFrame:
-    """Parses predicitons and test-data to get submission-ready df.
-
-    Args:
-        X_test (pd.DataFrame): test data / model input
-        predictions: predictions / model output
-
-    Returns:
-        pd.DataFrame: df ready for submission on kaggle
-    """
-
-    submission = X_test.copy()
-    submission["prediction"] = predictions
-    submission = submission[["id", "prediction"]]
-
-    return submission
