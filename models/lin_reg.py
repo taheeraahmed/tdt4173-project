@@ -7,9 +7,10 @@ from sklearn.model_selection import cross_val_score
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
-
 import mlflow
 import time
+
+mlflow.autolog()
 
 def lin_reg(num, cat, X_train, y_train):
     """
@@ -43,24 +44,25 @@ def lin_reg(num, cat, X_train, y_train):
         ('regressor', LinearRegression())])
 
     run_name = generate_run_name()
+
     with mlflow.start_run(run_name=run_name) as run:
-        # Perform 5-fold cross-validation and calculate the metrics for each fold
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
-        
         # Convert negative MSE to positive (optional, depends on your preference)
         mse_values = -scores
-        
+
         # Log the metrics
         for i, mse in enumerate(mse_values):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
+
+              
+        # Log the model artifact
+        mlflow.sklearn.log_model(model, "Linear regression")
         
         # Fetch and print logged data
-        params, metrics, tags, artifacts, log_time = fetch_logged_data(run.info.run_id)
-        
-
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
+    
     logged_data = {
         'name': 'Linear regression',
-        'time': log_time,
         'run_name': run_name,
         'params': params,
         'metrics': metrics,
