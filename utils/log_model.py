@@ -1,22 +1,23 @@
 from mlflow.tracking import MlflowClient
-from datetime import date
 import time
+from datetime import datetime
+
 
 def fetch_logged_data(run_id):
     # Create an instance of the MlflowClient
     client = MlflowClient()
     
-    TODAY = date.today()
-    
     data = client.get_run(run_id).data
     tags = {k: v for k, v in data.tags.items() if not k.startswith("mlflow.")}
     artifacts = [f.path for f in client.list_artifacts(run_id, "model")]
     
-    return data.params, data.metrics, tags, artifacts, time
+    return data.params, data.metrics, tags, artifacts
 
 def write_to_file(logged_data, start_time, filename = "log_model.txt"):
     end_time = time.time()  # <- End the timer
     elapsed_time = end_time - start_time  # <- Calculate elapsed time
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     with open(filename, 'a') as file:
         file.write('-------------------------------\n')
 
@@ -26,9 +27,8 @@ def write_to_file(logged_data, start_time, filename = "log_model.txt"):
         file.write('Run name: ')
         file.write(str(logged_data['run_name']) + '\n')
 
-        file.write('Time logged: ')
-        file.write(str(logged_data['time']) + '\n')
-
+        file.write('Logged time: ')
+        file.write(str(current_time) + '\n')
 
         file.write('Elapsed time: ')
         file.write(str(elapsed_time) + ' seconds \n')
