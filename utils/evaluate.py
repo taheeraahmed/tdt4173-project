@@ -6,6 +6,9 @@ import numpy as np
 import os
 import pandas as pd
 import logging 
+import datetime
+
+
 def training_mse(targets, predictions):
     logger = logging.getLogger()
     logger.info("MSE score: ", str(mean_squared_error(targets, predictions)))
@@ -32,15 +35,25 @@ def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFr
     Returns:
         pd.DataFrame: DataFrame ready for submission on Kaggle
     """
+    logger = logging.getLogger()
+
     submission = X_test.reset_index()  # Reset the index to use it as 'id'
     submission = submission.rename(columns={'index': 'id'})  # Rename the index to 'id'
     submission['prediction'] = predictions
-
     submission = submission[['id', 'prediction']]
 
-    # Specify the directory and filename for the submission
+    # Merge with test
+    test = pd.read_csv('data/test.csv')
+    test['prediction'] = np.random.rand(len(test))
+    submission = submission[['id']].merge(test[['id', 'prediction']], on='id', how='left')
+    submission = submission.dropna(subset=['prediction'])
+
+    # Create filename
+    current_datetime = datetime.datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
     submission_directory = 'submissions'  # Change to the desired directory path
-    submission_filename = run_name + '.csv'
+    run_name = run_name.lower().replace(" ", "-")
+    submission_filename = formatted_datetime+ "-"+ run_name + '.csv'
 
     # Check if the directory exists; if not, create it
     if not os.path.exists(submission_directory):
@@ -48,3 +61,4 @@ def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFr
 
     # Save the submission CSV in the specified directory
     submission.to_csv(os.path.join(submission_directory, submission_filename), index=False)
+    logger.info("Saved submission file " + formatted_datetime + "-" + run_name + '.csv' )
