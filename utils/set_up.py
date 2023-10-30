@@ -2,12 +2,15 @@ import pyfiglet
 import logging
 import warnings
 import mlflow
+import random
+
 
 
 def set_up():
     result = pyfiglet.figlet_format("Gosling slayers", font = "slant"  ) 
     print(result) 
-    # Constants
+
+    random.seed(10)
     LOG_FILE = "log_file.txt"
     WARNINGS_TO_SUPPRESS = [
     ("ignore", UserWarning, "_distutils_hack"),
