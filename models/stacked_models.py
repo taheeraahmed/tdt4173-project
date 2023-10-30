@@ -12,6 +12,7 @@ from utils.log_model import fetch_logged_data, write_to_file
 from utils.evaluate import prepare_submission, get_input_data
 import time
 import mlflow
+import warnings
 
 def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stacked-model"):
     """
@@ -32,7 +33,6 @@ def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stack
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())])
-
 
     preprocessor = ColumnTransformer(
         transformers=[
