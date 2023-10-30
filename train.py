@@ -1,4 +1,5 @@
 from models.lin_reg import lin_reg
+from models.stacked_models import random_forest_xgboost_stacking
 from models.grid_search_random_forest import grid_search
 from models.random_forest import random_forest
 from models.decision_tree import decision_tree
@@ -31,6 +32,9 @@ def main():
 
     logger.info('Grid search with random forest')
     grid_search(numeric_features, categorical_features, X, y)
+
+    logger.info('Random forest xgboost stacking')
+    random_forest_xgboost_stacking(numeric_features,categorical_features, X,y)
 
 if __name__ == "__main__":
     main()
