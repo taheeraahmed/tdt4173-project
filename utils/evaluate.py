@@ -3,6 +3,7 @@ from sklearn.metrics import mean_squared_error
 from data_preprocess import get_input_data
 from sklearn.metrics import mean_squared_error
 import numpy as np
+import os
 import pandas as pd
 import logging 
 def training_mse(targets, predictions):
@@ -21,26 +22,29 @@ def evaluate_model(model, X_test, y_test):
     mse = mean_squared_error(y_test, predictions)
     return mse
 
-def prepare_submission(X_test: pd.DataFrame, predictions) -> pd.DataFrame:
-    """Parses predicitons and test-data to get submission-ready df.
+def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFrame:
+    """Parses predictions and test-data to get a submission-ready DataFrame.
 
     Args:
         X_test (pd.DataFrame): test data / model input
         predictions: predictions / model output
 
     Returns:
-        pd.DataFrame: df ready for submission on kaggle
+        pd.DataFrame: DataFrame ready for submission on Kaggle
     """
+    submission = X_test.reset_index()  # Reset the index to use it as 'id'
+    submission = submission.rename(columns={'index': 'id'})  # Rename the index to 'id'
+    submission['prediction'] = predictions
 
-    submission = X_test.copy()
-    submission["prediction"] = predictions
-    submission = submission[["id", "prediction"]]
+    submission = submission['id', 'prediction']
 
-    return submission
+    # Specify the directory and filename for the submission
+    submission_directory = 'submissions'  # Change to the desired directory path
+    submission_filename = run_name + '.csv'
 
-def create_submission_csv(model, features=[]):
-    X_test = get_input_data()
-    predictions = model.predict(X_test[features].values)
+    # Check if the directory exists; if not, create it
+    if not os.path.exists(submission_directory):
+        os.makedirs(submission_directory)
 
-    submission = prepare_submission(X_test, predictions)
-    submission.to_csv('submissions/mlpgr_regressor.csv', index=False)
+    # Save the submission CSV in the specified directory
+    submission.to_csv(os.path.join(submission_directory, submission_filename), index=False)

@@ -4,13 +4,16 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import cross_val_score
-import time
+
 from utils.log_model import fetch_logged_data, write_to_file
+from utils.evaluate import prepare_submission, get_input_data
 from utils.generate_run_name import generate_run_name
+
 import mlflow
+import time
 
 
-def decision_tree(num, cat, X_train, y_train):
+def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
     """
     Train a decision tree model using given training data and log the results using MLflow.
 
@@ -29,13 +32,9 @@ def decision_tree(num, cat, X_train, y_train):
         ('imputer', SimpleImputer(strategy='mean')),
         ('scaler', StandardScaler())])
 
-    categorical_transformer = Pipeline(steps=[
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))])
-
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', numeric_transformer, num),
-            ('cat', categorical_transformer, cat)])
+            ('num', numeric_transformer, num)])
 
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
@@ -43,7 +42,8 @@ def decision_tree(num, cat, X_train, y_train):
     
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
-        mlflow.sklearn.log_model(model, "DecisionTree")
+        mlflow.sklearn.log_model(model, model_name)
+        model.fit(X_train,y_train)
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
         # Convert negative MSE to positive (optional, depends on your preference)
         mse_values = -scores
@@ -55,7 +55,7 @@ def decision_tree(num, cat, X_train, y_train):
     
         
     logged_data = {
-        'name': 'Linear regression',
+        'name': model_name,
         'start_time': start_time,
         'run_name': run_name,
         'params': params,
@@ -66,3 +66,6 @@ def decision_tree(num, cat, X_train, y_train):
 
     write_to_file(logged_data)
 
+    X_test = get_input_data(drop_time_date=True)
+    pred = model.predict(X_test)
+    prepare_submission(X_test, pred, run_name)

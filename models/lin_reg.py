@@ -7,10 +7,12 @@ from sklearn.model_selection import cross_val_score
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
+from utils.evaluate import prepare_submission, get_input_data
+
 import mlflow
 import time
 
-def lin_reg(num, cat, X_train, y_train):
+def lin_reg(num, cat, X_train, y_train, model_name="linear_regression"):
     """
     Train a linear regression model using given training data and log the results using MLflow.
 
@@ -34,8 +36,7 @@ def lin_reg(num, cat, X_train, y_train):
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', numeric_transformer, num),
-            ('cat', categorical_transformer, cat)])
+            ('num', numeric_transformer, num)])
 
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
@@ -44,23 +45,24 @@ def lin_reg(num, cat, X_train, y_train):
     run_name = generate_run_name()
 
     with mlflow.start_run(run_name=run_name) as run:
+        model.fit(X_train,y_train)
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
         # Convert negative MSE to positive (optional, depends on your preference)
         mse_values = -scores
-
+        mlflow.sklearn.log_model(model, "Linear Regression")
         # Log the metrics
         for i, mse in enumerate(mse_values):
             mlflow.log_metric(f'MSE_fold_{i}', mse)
 
               
         # Log the model artifact
-        mlflow.sklearn.log_model(model, "Linear regression")
+        mlflow.sklearn.log_model(model, model_name)
         
         # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
     
     logged_data = {
-        'name': 'Linear regression',
+        'name': model_name,
         'start_time': start_time,
         'run_name': run_name,
         'params': params,
@@ -69,5 +71,9 @@ def lin_reg(num, cat, X_train, y_train):
         'artifacts': artifacts,
     }
 
-
     write_to_file(logged_data)
+
+    X_test = get_input_data(drop_time_date=True)
+    pred = model.predict(X_test)
+    prepare_submission(X_test, pred, run_name)
+    

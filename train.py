@@ -10,7 +10,7 @@ def main():
     logger = logging.getLogger()
 
     logger.info('Preprocessing data')
-    data = data_preprocess(one_hot_location=False)
+    data = data_preprocess(one_hot_location=True)
     X, y = get_training_data(data)
     X = X.drop(columns=['time', 'date_calc'])
     logger.info('Done with preprocessing data')

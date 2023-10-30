@@ -7,12 +7,13 @@ from sklearn.model_selection import cross_val_score
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
+from utils.evaluate import prepare_submission, get_input_data
 
 import time
 import mlflow
 
 
-def random_forest(num, cat, X_train, y_train):
+def random_forest(num, cat, X_train, y_train, model_name="random_forest"):
     """
     Train a random forest model using given training data and log the results using MLflow.
 
@@ -28,7 +29,7 @@ def random_forest(num, cat, X_train, y_train):
     start_time = time.time()  
     
     numeric_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='mean')),
+        ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())])
 
     categorical_transformer = Pipeline(steps=[
@@ -36,8 +37,7 @@ def random_forest(num, cat, X_train, y_train):
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', numeric_transformer, num),
-            ('cat', categorical_transformer, cat)])
+            ('num', numeric_transformer, num)])
 
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
@@ -45,7 +45,9 @@ def random_forest(num, cat, X_train, y_train):
 
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
-        # Perform 5-fold cross-validation and calculate the metrics for each fold
+        model.fit(X_train,y_train)
+        mlflow.sklearn.log_model(model, "Random forest")
+        # Perform 5-fold cross-validation and calculate the metrics for each fol
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
         
         # Convert negative MSE to positive (optional, depends on your preference)
@@ -60,7 +62,7 @@ def random_forest(num, cat, X_train, y_train):
         
 
     logged_data = {
-        'name': 'Linear regression',
+        'name': model_name,
         'start_time': start_time,
         'run_name': run_name,
         'params': params,
@@ -70,3 +72,7 @@ def random_forest(num, cat, X_train, y_train):
     }
 
     write_to_file(logged_data)
+
+    X_test = get_input_data(drop_time_date=True)
+    pred = model.predict(X_test)
+    prepare_submission(X_test, pred, run_name)
