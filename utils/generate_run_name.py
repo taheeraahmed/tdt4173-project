@@ -2,6 +2,7 @@ import nltk
 import random
 from nltk.corpus import words as nltk_words
 import logging
+import random
 
 def download_nltk_words():
     try:
@@ -13,6 +14,7 @@ def download_nltk_words():
         nltk.download("words")
 
 def generate_run_name():
+    random.seed()
     download_nltk_words()
     logger = logging.getLogger()
     english_words = nltk_words.words()
