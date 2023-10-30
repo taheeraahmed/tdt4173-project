@@ -8,10 +8,9 @@ from sklearn.model_selection import cross_val_score
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
 
-import mlflow
 import time
+import mlflow
 
-mlflow.autolog()
 
 def random_forest(num, cat, X_train, y_train):
     """

@@ -10,8 +10,6 @@ from utils.log_model import fetch_logged_data, write_to_file
 import mlflow
 import time
 
-mlflow.autolog()
-
 def lin_reg(num, cat, X_train, y_train):
     """
     Train a linear regression model using given training data and log the results using MLflow.

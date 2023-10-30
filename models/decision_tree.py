@@ -9,8 +9,6 @@ from utils.log_model import fetch_logged_data, write_to_file
 from utils.generate_run_name import generate_run_name
 import mlflow
 
-mlflow.autolog()
-
 
 def decision_tree(num, cat, X_train, y_train):
     """
@@ -25,7 +23,7 @@ def decision_tree(num, cat, X_train, y_train):
     Returns:
     None. The function logs the training results using MLflow and writes the logged data to a file.
     """
-    start_time = time.time()  # <- Start the timer
+    start_time = time.time()
     
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='mean')),
@@ -44,7 +42,6 @@ def decision_tree(num, cat, X_train, y_train):
         ('regressor', tree.DecisionTreeRegressor(max_depth=7))])
     
     run_name = generate_run_name()
-    # Log the model artifact
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.sklearn.log_model(model, "DecisionTree")
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')

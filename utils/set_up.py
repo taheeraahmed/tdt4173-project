@@ -1,6 +1,8 @@
 import pyfiglet
 import logging
 import warnings
+import mlflow
+
 
 def set_up():
     result = pyfiglet.figlet_format("Gosling slayers", font = "slant"  ) 
@@ -22,3 +24,4 @@ def set_up():
                         logging.FileHandler(LOG_FILE),
                         logging.StreamHandler()
                     ])
+    mlflow.autolog()
