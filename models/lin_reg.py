@@ -12,7 +12,7 @@ from utils.evaluate import prepare_submission, get_input_data
 import mlflow
 import time
 
-def lin_reg(num, cat, X_train, y_train, model_name="linear_regression"):
+def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
     """
     Train a linear regression model using given training data and log the results using MLflow.
 

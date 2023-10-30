@@ -13,7 +13,7 @@ from utils.evaluate import prepare_submission, get_input_data
 import time
 import mlflow
 
-def grid_search(num, cat, X_train, y_train, model_name="grid_search"):
+def grid_search(num, cat, X_train, y_train, model_name="grid-search"):
     """
     Train a random forest model using given training data and log the results using MLflow.
 

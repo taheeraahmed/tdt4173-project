@@ -13,7 +13,7 @@ import time
 import mlflow
 
 
-def random_forest(num, cat, X_train, y_train, model_name="random_forest"):
+def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
     """
     Train a random forest model using given training data and log the results using MLflow.
 
