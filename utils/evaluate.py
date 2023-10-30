@@ -36,7 +36,7 @@ def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFr
     submission = submission.rename(columns={'index': 'id'})  # Rename the index to 'id'
     submission['prediction'] = predictions
 
-    submission = submission['id', 'prediction']
+    submission = submission[['id', 'prediction']]
 
     # Specify the directory and filename for the submission
     submission_directory = 'submissions'  # Change to the desired directory path
