@@ -49,7 +49,7 @@ def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
         # Convert negative MSE to positive (optional, depends on your preference)
         mse_values = -scores
-        mlflow.sklearn.log_model(model, "Linear Regression")
+        mlflow.sklearn.log_model(model, model_name)
         # Log the metrics
         for i, mse in enumerate(mse_values):
             mlflow.log_metric(f'MSE_fold_{i}', mse)

@@ -46,7 +46,7 @@ def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         model.fit(X_train,y_train)
-        mlflow.sklearn.log_model(model, "Random forest")
+        mlflow.sklearn.log_model(model, model_name)
         # Perform 5-fold cross-validation and calculate the metrics for each fol
         scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
         

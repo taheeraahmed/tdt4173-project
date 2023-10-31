@@ -56,7 +56,7 @@ def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stack
     with mlflow.start_run(run_name=run_name) as run:
         stacked_model.fit(X_train, y_train)
         
-        mlflow.sklearn.log_model(stacked_model, "Stacked Model")
+        mlflow.sklearn.log_model(stacked_model, model_name)
         
         # Perform 5-fold cross-validation and calculate the metrics for each fold
         scores = cross_val_score(stacked_model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
