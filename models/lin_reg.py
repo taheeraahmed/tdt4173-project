@@ -57,10 +57,9 @@ def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
         'tags': tags, 
         'artifacts': artifacts,
     }
-
     write_to_file(logged_data)
 
-    X_test = get_input_data(drop_time_date=True)
+    X_test = get_input_data()
     pred = model.predict(X_test)
     prepare_submission(X_test, pred, run_name)
     

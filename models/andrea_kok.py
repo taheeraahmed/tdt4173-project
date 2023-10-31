@@ -3,11 +3,10 @@ from data_preprocess import data_preprocess, get_input_data, get_training_data
 from sklearn.ensemble import StackingRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, BaggingRegressor
 from sklearn.linear_model import LinearRegression, SGDRegressor
-from sklearn.model_selection import cross_val_score
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
-from utils.evaluate import prepare_submission, get_input_data
+from utils.evaluate import prepare_submission
 
 import mlflow
 import time
@@ -55,7 +54,6 @@ def andrea_kok(model_name="andrea-kok"):
 
     X_train_drop = X_train.drop(columns=drop_cols)
 
-
     min_max_scaler = preprocessing.MinMaxScaler()
     X = min_max_scaler.fit_transform(X_train_drop.values)
     y = targets
@@ -76,12 +74,13 @@ def andrea_kok(model_name="andrea-kok"):
 
     # Create the stacking regressor
     stacked_model = StackingRegressor(estimators=base_models, final_estimator=meta_learner)
+
+    # Start timer for logger
     start_time = time.time()  
-    # Train the stacked model
+
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         stacked_model.fit(X, y)
-        # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
 
     logged_data = {
@@ -93,10 +92,7 @@ def andrea_kok(model_name="andrea-kok"):
         'tags': tags, 
         'artifacts': artifacts,
     }
-
     write_to_file(logged_data)
-
-    ## --- prepare the test data, make predictions w/stacked model, and prepare submission ---
 
     new_features = [f for f in features if f not in drop_cols]
 
@@ -104,9 +100,7 @@ def andrea_kok(model_name="andrea-kok"):
     X_test['month'] = X_test['time'].apply(lambda x: x.month)
     X_test_features = X_test[new_features].fillna(0)
     X_test_features['month'] = X_test['month']
-
     scaled_X_test = min_max_scaler.transform(X_test_features.values)
-
+    
     predictions = stacked_model.predict(scaled_X_test)
-
     prepare_submission(X_test, predictions)

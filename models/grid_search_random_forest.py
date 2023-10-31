@@ -4,7 +4,6 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
@@ -70,6 +69,6 @@ def grid_search(num, cat, X_train, y_train, model_name="grid-search"):
 
     write_to_file(logged_data)
 
-    X_test = get_input_data(drop_time_date=True)
+    X_test = get_input_data()
     pred = best_model.predict(X_test)
     prepare_submission(X_test, pred, run_name)

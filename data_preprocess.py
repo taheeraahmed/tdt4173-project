@@ -113,10 +113,9 @@ def get_training_data(
     return X_train, targets
 
 
-def get_input_data(drop_time_date: bool) -> pd.DataFrame:
+def get_input_data() -> pd.DataFrame:
     """Loads test-data and merges (the time-points to make predictions for) into a single dataframe along with id's for submission.
-    Params: 
-        drop_time_date (bool): Drop columns time and date
+    
     Returns:
         test_data (pd.DataFrame): df with timepoints to make predictions for, and features for these timepoints
     """    

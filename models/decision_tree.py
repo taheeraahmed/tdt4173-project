@@ -44,7 +44,6 @@ def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
     with mlflow.start_run(run_name=run_name) as run:
         model.fit(X_train,y_train)
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
-    
         
     logged_data = {
         'name': model_name,
@@ -58,6 +57,6 @@ def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
 
     write_to_file(logged_data)
 
-    X_test = get_input_data(drop_time_date=True)
+    X_test = get_input_data()
     pred = model.predict(X_test)
     prepare_submission(X_test, pred, run_name)

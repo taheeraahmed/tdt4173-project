@@ -1,10 +1,9 @@
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
-from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import StackingRegressor
 from sklearn.linear_model import LinearRegression
 from utils.generate_run_name import generate_run_name
@@ -12,7 +11,6 @@ from utils.log_model import fetch_logged_data, write_to_file
 from utils.evaluate import prepare_submission, get_input_data
 import time
 import mlflow
-import warnings
 
 def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stacked-model"):
     """
@@ -69,6 +67,6 @@ def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stack
 
     write_to_file(logged_data)
 
-    X_test = get_input_data(drop_time_date=True)
+    X_test = get_input_data()
     pred = stacked_model.predict(X_test)
     prepare_submission(X_test, pred, run_name)
