@@ -55,23 +55,9 @@ def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stack
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         stacked_model.fit(X_train, y_train)
-        
         mlflow.sklearn.log_model(stacked_model, model_name)
-        
-        # Perform 5-fold cross-validation and calculate the metrics for each fold
-        scores = cross_val_score(stacked_model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
-        
-        # Convert negative MSE to positive (optional, depends on your preference)
-        mse_values = -scores
-        
-        # Log the metrics
-        for i, mse in enumerate(mse_values):
-            mlflow.log_metric(f'MSE_fold_{i}', mse)
-        
-        # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
         
-
     logged_data = {
         'name': model_name,
         'start_time': start_time,

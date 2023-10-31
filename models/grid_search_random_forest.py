@@ -60,16 +60,6 @@ def grid_search(num, cat, X_train, y_train, model_name="grid-search"):
         # Log the best parameters found by grid search
         mlflow.log_params(grid_search.best_params_)
         
-        # Perform 5-fold cross-validation and calculate the metrics for each fold
-        scores = cross_val_score(best_model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
-        
-        # Convert negative MSE to positive (optional, depends on your preference)
-        mse_values = -scores
-        
-        # Log the metrics
-        for i, mse in enumerate(mse_values):
-            mlflow.log_metric(f'MSE_fold_{i}', mse)
-        
         # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
         

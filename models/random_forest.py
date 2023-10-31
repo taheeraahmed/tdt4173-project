@@ -47,16 +47,6 @@ def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
     with mlflow.start_run(run_name=run_name) as run:
         model.fit(X_train,y_train)
         mlflow.sklearn.log_model(model, model_name)
-        # Perform 5-fold cross-validation and calculate the metrics for each fol
-        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
-        
-        # Convert negative MSE to positive (optional, depends on your preference)
-        mse_values = -scores
-        
-        # Log the metrics
-        for i, mse in enumerate(mse_values):
-            mlflow.log_metric(f'MSE_fold_{i}', mse)
-        
         # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
         

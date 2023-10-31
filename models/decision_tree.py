@@ -44,13 +44,6 @@ def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.sklearn.log_model(model, model_name)
         model.fit(X_train,y_train)
-        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
-        # Convert negative MSE to positive (optional, depends on your preference)
-        mse_values = -scores
-        # Log the metrics
-        for i, mse in enumerate(mse_values):
-            mlflow.log_metric(f'MSE_fold_{i}', mse)
-        # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
     
         
