@@ -45,9 +45,8 @@ def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFr
     # Merge with test
     test = pd.read_csv('data/test.csv')
     test['prediction'] = np.random.rand(len(test))
-    submission = submission[['id']].merge(test[['id', 'prediction']], on='id', how='left')
-    submission = submission.dropna(subset=['prediction'])
-
+    submission = submission[['id']].merge(test[['id', 'prediction']], on='id', how='left').dropna(subset=['prediction'])
+    
     # Create filename
     current_datetime = datetime.datetime.now()
     formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")

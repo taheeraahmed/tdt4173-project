@@ -46,8 +46,6 @@ def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         model.fit(X_train,y_train)
-        mlflow.sklearn.log_model(model, model_name)
-        # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
         
 

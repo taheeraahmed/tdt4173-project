@@ -54,13 +54,8 @@ def grid_search(num, cat, X_train, y_train, model_name="grid-search"):
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         grid_search.fit(X_train, y_train)
-        best_model = grid_search.best_estimator_
-        mlflow.sklearn.log_model(best_model, "Random forest")
-        
-        # Log the best parameters found by grid search
+        best_model = grid_search.best_estimator_        
         mlflow.log_params(grid_search.best_params_)
-        
-        # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
         
     logged_data = {

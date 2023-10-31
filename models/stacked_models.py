@@ -55,7 +55,6 @@ def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stack
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         stacked_model.fit(X_train, y_train)
-        mlflow.sklearn.log_model(stacked_model, model_name)
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
         
     logged_data = {

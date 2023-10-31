@@ -42,7 +42,6 @@ def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
     
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
-        mlflow.sklearn.log_model(model, model_name)
         model.fit(X_train,y_train)
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
     

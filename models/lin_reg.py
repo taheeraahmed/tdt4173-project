@@ -46,7 +46,6 @@ def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
 
     with mlflow.start_run(run_name=run_name) as run:
         model.fit(X_train,y_train)
-        mlflow.sklearn.log_model(model, model_name)
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
     
     logged_data = {

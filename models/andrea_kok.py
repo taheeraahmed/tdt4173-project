@@ -81,7 +81,6 @@ def andrea_kok(model_name="andrea-kok"):
     run_name = generate_run_name()
     with mlflow.start_run(run_name=run_name) as run:
         stacked_model.fit(X, y)
-        mlflow.sklearn.log_model(stacked_model, model_name)
         # Fetch and print logged data
         params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
 

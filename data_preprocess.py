@@ -171,9 +171,6 @@ def get_input_data(drop_time_date: bool) -> pd.DataFrame:
     # merge 
     test_data = pd.merge(X_test, test, on=["time", "A", "B", "C"])
 
-    if drop_time_date: 
-        test_data = X_test.drop(columns=['time', 'date_calc'])
-
     return test_data
 
 
