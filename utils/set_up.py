@@ -5,7 +5,7 @@ import mlflow
 import random
 
 def set_up():
-    result = pyfiglet.figlet_format("Gosling slayers", font = "ddigital") 
+    result = pyfiglet.figlet_format("Gosling slayers", font = "digital") 
     print(result) 
 
     random.seed(10)

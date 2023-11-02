@@ -1,6 +1,6 @@
 
 from sklearn.metrics import mean_squared_error
-from data_preprocess import get_input_data
+from utils.data_preprocess import get_input_data
 from sklearn.metrics import mean_squared_error
 import numpy as np
 import os
@@ -25,12 +25,13 @@ def evaluate_model(model, X_test, y_test):
     mse = mean_squared_error(y_test, predictions)
     return mse
 
-def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFrame:
+def prepare_submission(X_test: pd.DataFrame, predictions, run_name: str) -> pd.DataFrame:
     """Parses predictions and test-data to get a submission-ready DataFrame.
 
     Args:
         X_test (pd.DataFrame): test data / model input
         predictions: predictions / model output
+        run_name: generated name of model run
 
     Returns:
         pd.DataFrame: DataFrame ready for submission on Kaggle
@@ -42,7 +43,7 @@ def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFr
     return submission
 
 
-def submission_to_csv(submission, run_name):
+def submission_to_csv(submission: pd.DataFrame, run_name: str):
     logger = logging.getLogger()
 
     # Create filename

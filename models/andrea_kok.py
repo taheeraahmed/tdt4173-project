@@ -1,5 +1,5 @@
 from sklearn import preprocessing
-from data_preprocess import data_preprocess, get_input_data, get_training_data
+from utils.data_preprocess import data_preprocess, get_input_data, get_training_data
 from sklearn.ensemble import StackingRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, BaggingRegressor
 from sklearn.linear_model import LinearRegression, SGDRegressor
