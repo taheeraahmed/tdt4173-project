@@ -11,10 +11,14 @@ from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 import mlflow
 import time
 import pandas as pd
+import logging
 
 
 
 def andrea_kok(model_name="andrea-kok"):
+    logger = logging.getLogger()
+    logger.info(model_name)
+    
     # --- load data and do some clean-up and feature engineering ---
     data = data_preprocess(one_hot_location=True)
 

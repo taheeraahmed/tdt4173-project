@@ -11,6 +11,7 @@ from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 
 import time
 import mlflow
+import logging
 
 
 def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
@@ -28,6 +29,9 @@ def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
     """
     start_time = time.time()  
     
+    logger = logging.getLogger()
+    logger.info(model_name)
+
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())])

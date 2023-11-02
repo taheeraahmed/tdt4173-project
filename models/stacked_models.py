@@ -11,6 +11,7 @@ from utils.log_model import fetch_logged_data, write_to_file
 from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 import time
 import mlflow
+import logging
 
 def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stacked-model"):
     """
@@ -25,6 +26,9 @@ def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stack
     Returns:
     None. The function logs the training results using MLflow and writes the logged data to a file.
     """
+    logger = logging.getLogger()
+    logger.info(model_name)
+
     start_time = time.time()  
     
     # Preprocessing for numeric features

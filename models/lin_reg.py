@@ -11,6 +11,7 @@ from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 
 import mlflow
 import time
+import logging
 
 def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
     """
@@ -25,6 +26,9 @@ def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
     Returns:
     None. The function logs the training results using MLflow and writes the logged data to a file.
     """
+    logger = logging.getLogger()
+    logger.info(model_name)
+
     start_time = time.time()  # <- Start the timer
 
     numeric_transformer = Pipeline(steps=[

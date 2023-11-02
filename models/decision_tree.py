@@ -11,6 +11,7 @@ from utils.generate_run_name import generate_run_name
 
 import mlflow
 import time
+import logging
 
 
 def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
@@ -26,6 +27,9 @@ def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
     Returns:
     None. The function logs the training results using MLflow and writes the logged data to a file.
     """
+    logger = logging.getLogger()
+    logger.info(model_name)
+    
     start_time = time.time()
     
     numeric_transformer = Pipeline(steps=[

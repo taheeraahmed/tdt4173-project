@@ -11,6 +11,7 @@ from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 
 import time
 import mlflow
+import logging 
 
 def grid_search(num, cat, X_train, y_train, model_name="grid-search"):
     """
@@ -25,8 +26,11 @@ def grid_search(num, cat, X_train, y_train, model_name="grid-search"):
     Returns:
     None. The function logs the training results using MLflow and writes the logged data to a file.
     """
+    logger = logging.getLogger()
+    logger.info(model_name)
+
     start_time = time.time()  
-    
+
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())])

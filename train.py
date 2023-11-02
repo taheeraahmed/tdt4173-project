@@ -21,22 +21,16 @@ def main():
     categorical_features = X.select_dtypes(include=['object']).columns.tolist()
     logger.info('The training is beginning')
 
-    logger.info('Linear regression')
     lin_reg(numeric_features, categorical_features, X, y)
 
-    logger.info('Andrea kok')
     andrea_kok()
 
-    logger.info('Decision tree')
-    decision_tree(numeric_features, categorical_features,X, y)
-    
-    logger.info('Random forest regression')
+    decision_tree(numeric_features, categorical_features, X, y)
+
     random_forest(numeric_features, categorical_features, X, y)
 
-    logger.info('Grid search with random forest')
     grid_search(numeric_features, categorical_features, X, y)
 
-    logger.info('Random forest xgboost stacking')
     random_forest_xgboost_stacking(numeric_features,categorical_features, X,y) 
 
 if __name__ == "__main__":
