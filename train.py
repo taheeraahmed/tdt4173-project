@@ -15,18 +15,17 @@ def main():
     logger.info('Preprocessing data')
     data = data_preprocess(one_hot_location=True)
     X, y = get_training_data(data)
-    X = X.drop(columns=['time', 'date_calc'])
     logger.info('Done with preprocessing data')
 
     numeric_features = X.select_dtypes(include=['float32']).columns.tolist()
     categorical_features = X.select_dtypes(include=['object']).columns.tolist()
     logger.info('The training is beginning')
 
-    logger.info('Andrea kok')
-    andrea_kok()
-
     logger.info('Linear regression')
     lin_reg(numeric_features, categorical_features, X, y)
+
+    logger.info('Andrea kok')
+    andrea_kok()
 
     logger.info('Decision tree')
     decision_tree(numeric_features, categorical_features,X, y)

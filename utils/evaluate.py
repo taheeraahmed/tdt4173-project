@@ -35,18 +35,16 @@ def prepare_submission(X_test: pd.DataFrame, predictions, run_name) -> pd.DataFr
     Returns:
         pd.DataFrame: DataFrame ready for submission on Kaggle
     """
-    logger = logging.getLogger()
 
     submission = X_test.reset_index()  # Reset the index to use it as 'id'
-    submission = submission.rename(columns={'index': 'id'})  # Rename the index to 'id'
     submission['prediction'] = predictions
     submission = submission[['id', 'prediction']]
+    return submission
 
-    # Merge with test
-    test = pd.read_csv('data/test.csv')
-    test['prediction'] = np.random.rand(len(test))
-    submission = submission[['id']].merge(test[['id', 'prediction']], on='id', how='left').dropna(subset=['prediction'])
-    
+
+def submission_to_csv(submission, run_name):
+    logger = logging.getLogger()
+
     # Create filename
     current_datetime = datetime.datetime.now()
     formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")

@@ -7,7 +7,7 @@ from sklearn.model_selection import cross_val_score
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
-from utils.evaluate import prepare_submission, get_input_data
+from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 
 import time
 import mlflow
@@ -61,4 +61,6 @@ def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
     
     X_test = get_input_data()
     pred = model.predict(X_test)
-    prepare_submission(X_test, pred, run_name)
+    submission = prepare_submission(X_test, pred, run_name)
+    submission_to_csv(submission, run_name)
+    

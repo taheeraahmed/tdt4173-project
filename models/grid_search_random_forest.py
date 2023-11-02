@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
-from utils.evaluate import prepare_submission, get_input_data
+from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 
 import time
 import mlflow
@@ -71,4 +71,5 @@ def grid_search(num, cat, X_train, y_train, model_name="grid-search"):
 
     X_test = get_input_data()
     pred = best_model.predict(X_test)
-    prepare_submission(X_test, pred, run_name)
+    submission = prepare_submission(X_test, pred, run_name)
+    submission_to_csv(submission, run_name)

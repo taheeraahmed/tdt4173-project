@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression, SGDRegressor
 
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
-from utils.evaluate import prepare_submission
+from utils.evaluate import prepare_submission, get_input_data, submission_to_csv
 
 import mlflow
 import time
@@ -103,4 +103,5 @@ def andrea_kok(model_name="andrea-kok"):
     scaled_X_test = min_max_scaler.transform(X_test_features.values)
     
     predictions = stacked_model.predict(scaled_X_test)
-    prepare_submission(X_test, predictions)
+    submission = prepare_submission(X_test, predictions, run_name)
+    submission_to_csv(submission, run_name)
