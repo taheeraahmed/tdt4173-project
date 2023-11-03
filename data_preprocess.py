@@ -104,7 +104,13 @@ def data_preprocess_old():
     return X_train, X_train_with_targets
 
 
-def data_preprocess(one_hot_location: bool = False) -> pd.DataFrame:
+def adjust_time(df, col_name = "time"):
+    """subracts one hour from each instance in the time-column, used to fix the time-difference between pv_measurements and other features"""
+    new_time = df[col_name] - pd.Timedelta(hours=1)
+    df[col_name] = new_time
+
+
+def data_preprocess(one_hot_location: bool = False, adjust_pv_time = False) -> pd.DataFrame:
     """Checks if the data exists, reads data from the parquet files 
     given from data.zip from the exercise, and removes rows that we have no target data for.
     :args
@@ -144,6 +150,12 @@ def data_preprocess(one_hot_location: bool = False) -> pd.DataFrame:
     X_train_estimated_a = pd.read_parquet('data/A/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
     X_train_estimated_b = pd.read_parquet('data/B/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
     X_train_estimated_c = pd.read_parquet('data/C/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
+
+    # adjust the time-cols of pv_measurements before merging
+    if adjust_pv_time:
+        adjust_time(train_a)
+        adjust_time(train_b)
+        adjust_time(train_c)
 
     # --- merge observed and estimated data with target data, lining up time-stamps correctly ----
     train_obs_a = pd.merge(train_a, X_train_observed_a, on='time', how='inner')
