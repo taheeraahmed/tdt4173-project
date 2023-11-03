@@ -60,33 +60,46 @@ locC_pipeline = Pipeline([
     ('cat_boost', cb.CatBoostRegressor(random_state=42, silent=True))
 ])
 
-param_grid = {
-    'cat_boost__iterations': [100, 200, 300],
-    'cat_boost__learning_rate': [0.05, 0.1, 0.2],
-    'cat_boost__depth': [4, 6, 8],
-    'cat_boost__l2_leaf_reg': [1, 3, 5]
+param_gridA = {
+    'cat_boost__iterations': [175, 200, 225],
+    'cat_boost__learning_rate': [0.01, 0.05],
+    'cat_boost__depth': [7, 8, 9],
+    'cat_boost__l2_leaf_reg': [3, 4, 5]
 }
 
 print("grid search for locA")
-grid_searchA = GridSearchCV(estimator=locA_pipeline, param_grid=param_grid, cv=3)
+grid_searchA = GridSearchCV(estimator=locA_pipeline, param_grid=param_gridA, cv=3)
 grid_searchA.fit(X_train_a, targets_a)
 
 # Print the best parameters and corresponding score
 print("Best Parameters: ", grid_searchA.best_params_)
 print("Best Score: ", grid_searchA.best_score_)
 
+param_gridB = {
+    'cat_boost__iterations': [175, 200, 225],
+    'cat_boost__learning_rate': [0.05],
+    'cat_boost__depth': [6],
+    'cat_boost__l2_leaf_reg': [0.4, 0.5, 0.6]
+}
+
 
 print("grid search for locB")
-grid_searchB = GridSearchCV(estimator=locB_pipeline, param_grid=param_grid, cv=3)
+grid_searchB = GridSearchCV(estimator=locB_pipeline, param_grid=param_gridB, cv=3)
 grid_searchB.fit(X_train_b, targets_b)
 
 # Print the best parameters and corresponding score
 print("Best Parameters: ", grid_searchB.best_params_)
 print("Best Score: ", grid_searchB.best_score_)
 
+param_gridC = {
+    'cat_boost__iterations': [275, 300, 325],
+    'cat_boost__learning_rate': [0.05],
+    'cat_boost__depth': [4],
+    'cat_boost__l2_leaf_reg': [0.75, 1, 1.25]
+}
 
 print("grid search for locC")
-grid_searchC = GridSearchCV(estimator=locA_pipeline, param_grid=param_grid, cv=3)
+grid_searchC = GridSearchCV(estimator=locA_pipeline, param_grid=param_gridC, cv=3)
 grid_searchC.fit(X_train_c, targets_c)
 
 # Print the best parameters and corresponding score
