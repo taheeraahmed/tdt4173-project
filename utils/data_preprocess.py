@@ -88,6 +88,22 @@ def data_preprocess(one_hot_location: bool = False) -> pd.DataFrame:
 
     return X_train
 
+def remove_ouliers(data):
+    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
+
+    threshold = 0.01
+    window_size = 24 
+
+    # Calculate standard deviation for each window
+    std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
+
+    # Identify constant stretches and create a mask to filter out these points
+    constant_mask = std_dev < threshold
+
+    # Filter out constant stretches from the data
+    filtered_data = data[~constant_mask]
+
+    return filtered_data
 
 def get_training_data(
     X_train_with_targets: pd.DataFrame, 
