@@ -69,6 +69,24 @@ def load_data():
     return data_a, data_b, data_c
 
 
+def remove_ouliers(data):
+    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
+
+    threshold = 0.01
+    window_size = 24 
+
+    # Calculate standard deviation for each window
+    std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
+
+    # Identify constant stretches and create a mask to filter out these points
+    constant_mask = std_dev < threshold
+
+    # Filter out constant stretches from the data
+    filtered_data = data[~constant_mask]
+
+    return filtered_data
+
+
 def get_train_targets(data):
     """Sepperate out features from the training data"""
     targets = data["pv_measurement"]
