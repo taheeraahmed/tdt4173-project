@@ -36,15 +36,12 @@ def prepare_submission(X_test: pd.DataFrame, predictions, run_name: str) -> pd.D
     Returns:
         pd.DataFrame: DataFrame ready for submission on Kaggle
     """
+    logger = logging.getLogger()
 
+    # Create submission dataframe
     submission = X_test.reset_index()  # Reset the index to use it as 'id'
     submission['prediction'] = predictions
     submission = submission[['id', 'prediction']]
-    return submission
-
-
-def submission_to_csv(submission: pd.DataFrame, run_name: str):
-    logger = logging.getLogger()
 
     # Create filename
     current_datetime = datetime.datetime.now()

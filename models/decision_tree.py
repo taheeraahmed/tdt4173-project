@@ -63,5 +63,4 @@ def decision_tree(num, cat, X_train, y_train, model_name="decision-tree"):
 
     X_test = get_input_data()
     pred = model.predict(X_test)
-    submission = prepare_submission(X_test, pred, run_name)
-    submission_to_csv(submission, run_name)
+    prepare_submission(X_test, pred, run_name)

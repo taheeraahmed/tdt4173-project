@@ -1,7 +1,9 @@
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_score
 
@@ -32,7 +34,7 @@ def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
     start_time = time.time()  # <- Start the timer
 
     numeric_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='mean')),
+        ('imputer', SimpleImputer()),
         ('scaler', StandardScaler())])
 
     categorical_transformer = Pipeline(steps=[
@@ -67,4 +69,60 @@ def lin_reg(num, cat, X_train, y_train, model_name="linear-regression"):
     pred = model.predict(X_test)
     submission = prepare_submission(X_test, pred, run_name)
     submission_to_csv(submission, run_name)
+    
+
+def lin_reg_iter_imp(num, cat, X_train, y_train, model_name="linear-regression-iter-imp"):
+    """
+    Train a linear regression model using given training data and log the results using MLflow.
+
+    Parameters:
+    - num (list): List of numerical feature names.
+    - cat (list): List of categorical feature names.
+    - X_train (DataFrame): Training data features.
+    - y_train (Series): Training data target values.
+
+    Returns:
+    None. The function logs the training results using MLflow and writes the logged data to a file.
+    """
+    logger = logging.getLogger()
+    logger.info(model_name)
+
+    start_time = time.time()  # <- Start the timer
+
+    numeric_transformer = Pipeline(steps=[
+        ('imputer', IterativeImputer()),
+        ('scaler', MinMaxScaler())])
+
+
+    categorical_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, num)])
+
+    model = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', LinearRegression())])
+
+    run_name = generate_run_name()
+
+    with mlflow.start_run(run_name=run_name) as run:
+        model.fit(X_train,y_train)
+        params, metrics, tags, artifacts = fetch_logged_data(run.info.run_id)
+    
+    logged_data = {
+        'name': model_name,
+        'start_time': start_time,
+        'run_name': run_name,
+        'params': params,
+        'metrics': metrics,
+        'tags': tags, 
+        'artifacts': artifacts,
+    }
+    write_to_file(logged_data)
+
+    X_test = get_input_data()
+    pred = model.predict(X_test)
+    prepare_submission(X_test, pred, run_name)
     

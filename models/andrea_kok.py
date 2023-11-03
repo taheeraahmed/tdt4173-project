@@ -107,5 +107,4 @@ def andrea_kok(model_name="andrea-kok"):
     scaled_X_test = min_max_scaler.transform(X_test_features.values)
     
     predictions = stacked_model.predict(scaled_X_test)
-    submission = prepare_submission(X_test, predictions, run_name)
-    submission_to_csv(submission, run_name)
+    prepare_submission(X_test, predictions, run_name)

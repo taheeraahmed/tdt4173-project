@@ -65,6 +65,4 @@ def random_forest(num, cat, X_train, y_train, model_name="random-forest"):
     
     X_test = get_input_data()
     pred = model.predict(X_test)
-    submission = prepare_submission(X_test, pred, run_name)
-    submission_to_csv(submission, run_name)
-    
+    prepare_submission(X_test, pred, run_name)    

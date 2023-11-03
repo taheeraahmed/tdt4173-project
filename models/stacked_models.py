@@ -73,6 +73,4 @@ def random_forest_xgboost_stacking(num, cat, X_train, y_train, model_name="stack
 
     X_test = get_input_data()
     pred = stacked_model.predict(X_test)
-    submission = prepare_submission(X_test, pred, run_name)
-    submission_to_csv(submission, run_name)
-    
+    prepare_submission(X_test, pred, run_name)    

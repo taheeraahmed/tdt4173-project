@@ -1,15 +1,12 @@
 from models.lin_reg import lin_reg
 from models.stacked_models import random_forest_xgboost_stacking
-from models.grid_search_random_forest import grid_search
+from models.grid_search import grid_search_rf
 from models.random_forest import random_forest
 from models.decision_tree import decision_tree
 from models.andrea_kok import andrea_kok
 from utils.data_preprocess import data_preprocess, get_training_data
 import logging
 from utils.set_up import set_up
-
-def feature_engineering(data):
-    pass
 
 def main():
     set_up()
@@ -29,7 +26,8 @@ def main():
     andrea_kok(model_name='andrea-kok')
     decision_tree(numeric_features, categorical_features, X, y, model_name='decision-tree')
     random_forest(numeric_features, categorical_features, X, y, model_name='random-forest')
-    grid_search(numeric_features, categorical_features, X, y, model_name='grid-search')
+    grid_search_gb(numeric_features, categorical_features, X, y, model_name='grid-search-gb')
+    grid_search_rf(numeric_features, categorical_features, X, y, model_name='grid-search-rf')
     random_forest_xgboost_stacking(numeric_features,categorical_features, X,y, model_name='random-forest-xgboost-stacking') 
 
 if __name__ == "__main__":
