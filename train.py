@@ -1,6 +1,6 @@
 from models.lin_reg import lin_reg
 from models.stacked_models import random_forest_xgboost_stacking
-from models.grid_search import grid_search_rf
+from models.grid_search import grid_search_rf, grid_search_gb
 from models.random_forest import random_forest
 from models.decision_tree import decision_tree
 from models.andrea_kok import andrea_kok
