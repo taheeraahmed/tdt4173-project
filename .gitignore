@@ -12,6 +12,7 @@ mlruns/
 
 # Data and model files (customize as needed)
 submissions/
+catboost_info/
 
 # Log files
 logs/
