@@ -128,7 +128,7 @@ def get_test_data():
     return X_test_a, X_test_b, X_test_c
 
 
-def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c):
+def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name):
     """Parses the test data and predictions into a single df in kaggle submission format"""
     logger = logging.getLogger()
     # Create dataframe

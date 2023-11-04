@@ -75,6 +75,7 @@ def data_preprocess(one_hot_location: bool = False) -> pd.DataFrame:
 
     X_train = pd.concat([train_obs_a, train_obs_b, train_obs_c, train_est_a, train_est_b, train_est_c], axis=0, ignore_index=True)
 
+
     # add one-hot encoding for location
     if one_hot_location:
         encoder = OneHotEncoder(sparse=False, categories='auto')
@@ -85,6 +86,18 @@ def data_preprocess(one_hot_location: bool = False) -> pd.DataFrame:
 
     # remove rows that the target value is missing from since they will not be useful in model training
     X_train = X_train.dropna(subset=['pv_measurement'])
+    X_train = X_train.dropna(subset=['time'])
+    assert not X_train['time'].isnull().any(), "There are still NaT values in the 'time' column"
+
+    X_train = remove_ouliers(X_train)
+
+    X_train['month'] = X_train['time'].dt.month.astype(int)
+    X_train['day'] = X_train['time'].dt.day.astype(int)
+    X_train['hour'] = X_train['time'].dt.hour.astype(int)
+    X_train['minute'] = X_train['time'].dt.minute.astype(int)
+    X_train['second'] = X_train['time'].dt.second.astype(int)
+
+    # Final check for NaT values
 
     return X_train
 
