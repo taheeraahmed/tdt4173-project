@@ -15,8 +15,8 @@ import logging
 
 import mlflow
 
-def run_tpot_and_log(X, y, location):
-    with mlflow.start_run(run_name=f"TPOT_{location}"):
+def run_tpot_and_log(X, y, location, run_name):
+    with mlflow.start_run(run_name=f"TPOT-{location}-{run_name}"):
         cv = RepeatedKFold(n_splits=5, n_repeats=2, random_state=42)
         tpot = TPOTRegressor(generations=100, population_size=100, scoring='neg_mean_absolute_error', cv=cv, verbosity=2, random_state=1, n_jobs=-1)
         
@@ -38,30 +38,21 @@ def run_tpot_and_log(X, y, location):
         # Log the exported pipeline script as an artifact
         mlflow.log_artifact(export_file, "tpot_models")
 
-def run_pipeline_and_log(pipeline, X_train, y_train, X_test, location):
-    with mlflow.start_run(run_name=f"Pipeline_{location}"):
+def run_pipeline_and_log(pipeline, X_train, y_train, X_test, location,run_name):
+    with mlflow.start_run(run_name=f"pipeline-{location}-{run_name}"):
         # Fit the pipeline
         pipeline.fit(X_train, y_train)
         
-        # Predict on the test set
         predictions = pipeline.predict(X_test.drop(columns=["id", "prediction", "location"]))
         
-        # Log model parameters (you would log all relevant parameters of your model)
-        # For example, if you have a RandomForestRegressor in your pipeline:
         if 'random_forest' in pipeline.named_steps:
             rf = pipeline.named_steps['random_forest']
             mlflow.log_param("n_estimators", rf.n_estimators)
             mlflow.log_param("max_features", rf.max_features)
-            # ... log other parameters as needed
         
-        # Log metrics (you would log the metrics relevant to your problem)
-        # For example, if you have a scoring function or validation scores:
-        # log_metric("score", your_scoring_function(y_test, predictions))
         
-        # Log the model
-        mlflow.sklearn.log_model(pipeline, f"pipeline_{location}")
+        mlflow.sklearn.log_model(pipeline, f"pipeline-{location}-{run_name}")
         
-        # Log the predictions as an artifact
         np.savetxt(f"predictions_{location}.csv", predictions, delimiter=",")
         mlflow.log_artifact(f"predictions_{location}.csv")
     return predictions
@@ -98,7 +89,7 @@ def automl(model_name='auto-ml'):
     y_A = targets_a
 
     logger.info("tpot regressor for location A")
-    run_tpot_and_log(X_A, y_A, "A-"+ run_name)
+    run_tpot_and_log(X_A, y_A, "A", run_name)
 
     # ------ for location B -----
 
@@ -106,7 +97,7 @@ def automl(model_name='auto-ml'):
     y_B = targets_b
 
     logger.info("tpot regressor for location B")
-    run_tpot_and_log(X_B, y_B, "B-"+ run_name)
+    run_tpot_and_log(X_B, y_B, "B", run_name)
 
     # ------ for location C -----
 
@@ -114,7 +105,7 @@ def automl(model_name='auto-ml'):
     y_C = targets_c
 
     logger.info("tpot regressor for location C")
-    run_tpot_and_log(X_C, y_C, "C-"+ run_name)
+    run_tpot_and_log(X_C, y_C, "C", run_name)
 
     # ---- run 
     data_process_pipeline = Pipeline([
@@ -138,10 +129,10 @@ def automl(model_name='auto-ml'):
     ])
 
     logger.info("Run pipeline for location A")
-    pred_a = run_pipeline_and_log(locA_pipeline, X_train_a, targets_a, X_test_a, "A-" + run_name)
+    pred_a = run_pipeline_and_log(locA_pipeline, X_train_a, targets_a, X_test_a, "A", run_name)
     logger.info("Run pipeline for location B")
-    pred_b = run_pipeline_and_log(locB_pipeline, X_train_b, targets_b, X_test_a, "B-" + run_name)
+    pred_b = run_pipeline_and_log(locB_pipeline, X_train_b, targets_b, X_test_a, "B", run_name)
     logger.info("Run pipeline for location C")
-    pred_c = run_pipeline_and_log(locC_pipeline, X_train_c, targets_c, X_test_c, "C-" + run_name)
+    pred_c = run_pipeline_and_log(locC_pipeline, X_train_c, targets_c, X_test_c, "C",run_name)
 
     prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name)
