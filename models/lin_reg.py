@@ -93,10 +93,6 @@ def lin_reg_iter_imp(num, cat, X_train, y_train, model_name="linear-regression-i
         ('imputer', IterativeImputer()),
         ('scaler', MinMaxScaler())])
 
-
-    categorical_transformer = Pipeline(steps=[
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))])
-
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', numeric_transformer, num)])
