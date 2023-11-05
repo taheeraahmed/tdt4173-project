@@ -92,8 +92,7 @@ def grid_search_rf(num, cat, X_train, y_train, model_name="grid-search-rf"):
 
     X_test = get_input_data()
     pred = best_model.predict(X_test)
-    submission = prepare_submission(X_test, pred, run_name)
-    submission_to_csv(submission, run_name)
+    prepare_submission(X_test, pred, run_name)
 
 def grid_search_gb(num, cat, X_train, y_train, model_name="grid-search-gb"):
     logger = logging.getLogger()
