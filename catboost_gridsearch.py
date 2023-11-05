@@ -64,7 +64,8 @@ param_gridA = {
     'cat_boost__iterations': [175, 200, 225],
     'cat_boost__learning_rate': [0.01, 0.05],
     'cat_boost__depth': [7, 8, 9],
-    'cat_boost__l2_leaf_reg': [3, 4, 5]
+    'cat_boost__l2_leaf_reg': [3, 4, 5],
+    'cat_boost__random_state': [42]
 }
 
 print("grid search for locA")
@@ -79,7 +80,9 @@ param_gridB = {
     'cat_boost__iterations': [175, 200, 225],
     'cat_boost__learning_rate': [0.05],
     'cat_boost__depth': [6],
-    'cat_boost__l2_leaf_reg': [0.4, 0.5, 0.6]
+    'cat_boost__l2_leaf_reg': [0.4, 0.5, 0.6],
+    'cat_boost__random_state': [42]
+
 }
 
 
@@ -95,7 +98,8 @@ param_gridC = {
     'cat_boost__iterations': [275, 300, 325],
     'cat_boost__learning_rate': [0.05],
     'cat_boost__depth': [4],
-    'cat_boost__l2_leaf_reg': [0.75, 1, 1.25]
+    'cat_boost__l2_leaf_reg': [0.75, 1, 1.25],
+    'cat_boost__random_state': [42]
 }
 
 print("grid search for locC")
