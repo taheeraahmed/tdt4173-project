@@ -77,18 +77,12 @@ def bayes_search_catboost(drop_cols, model_name="bayes-search-catboost"):
     run_name = generate_run_name()
     with mlflow.start_run(run_name='f{run_name}_A') as run:
         bayes_search_a.fit(X_train_a, y_train_a)
-        mlflow.log_params(bayes_search_a.best_params_)
-        mlflow.log_metric("best_cv_score", bayes_search_a.best_score_)
 
     with mlflow.start_run(run_name='f{run_name}_B') as run:
         bayes_search_b.fit(X_train_b, y_train_b)
-        mlflow.log_params(bayes_search_b.best_params_)
-        mlflow.log_metric("best_cv_score", bayes_search_b.best_score_)
 
     with mlflow.start_run(run_name='f{run_name}_C') as run:
         bayes_search_c.fit(X_train_c, y_train_c)
-        mlflow.log_params(bayes_search_c.best_params_)
-        mlflow.log_metric("best_cv_score", bayes_search_c.best_score_)
 
     elapsed_time = time.time() - start_time
 
