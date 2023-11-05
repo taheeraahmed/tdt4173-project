@@ -4,9 +4,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.base import BaseEstimator, TransformerMixin
 
 from utils.data_preprocess_location import get_test_data, get_train_targets, load_data, prepare_submission
+from utils.data_preprocess import ColumnDropper
+from utils.pipeline import run_pipeline_and_log
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
 from utils.evaluate import get_input_data
@@ -17,18 +18,6 @@ import time
 import mlflow
 import logging 
 
-class ColumnDropper(BaseEstimator, TransformerMixin):
-    """Drops columns from the data."""
-
-    def __init__(self, drop_cols = []):
-        self.drop_cols = drop_cols
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        X_copy = X.copy()
-        return X_copy.drop(columns=self.drop_cols)
 
 def grid_search_rf(num, cat, X_train, y_train, model_name="grid-search-rf"):
     """
@@ -155,7 +144,6 @@ def grid_search_gb(num, cat, X_train, y_train, model_name="grid-search-gb"):
     pred = best_model.predict(X_test)
     prepare_submission(X_test, pred, run_name)
 
-
 def grid_search_catboost(model_name="grid-search-catboost"):
     data_a, data_b, data_c = load_data()
 
@@ -258,16 +246,3 @@ def grid_search_catboost(model_name="grid-search-catboost"):
 
     prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name)
 
-
-def run_pipeline_and_log(pipeline, X_train, y_train, X_test, location):
-    with mlflow.start_run(run_name=f"Pipeline_{location}"):
-        pipeline.fit(X_train, y_train)
-        predictions = pipeline.predict(X_test.drop(columns=["id", "prediction", "location"]))
-        if 'random_forest' in pipeline.named_steps:
-            rf = pipeline.named_steps['random_forest']
-            mlflow.log_param("n_estimators", rf.n_estimators)
-            mlflow.log_param("max_features", rf.max_features)
-        mlflow.sklearn.log_model(pipeline, f"pipeline_{location}")
-        np.savetxt(f"predictions_{location}.csv", predictions, delimiter=",")
-        mlflow.log_artifact(f"predictions_{location}.csv")
-    return predictions

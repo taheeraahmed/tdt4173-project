@@ -1,46 +1,51 @@
 from skopt import BayesSearchCV
 from skopt.space import Real, Categorical, Integer
+from catboost import CatBoostRegressor
 
-from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.base import BaseEstimator, TransformerMixin
 
 from utils.data_preprocess_location import get_test_data, get_train_targets, load_data, prepare_submission
+from utils.data_preprocess import ColumnDropper
 from utils.generate_run_name import generate_run_name
 from utils.log_model import fetch_logged_data, write_to_file
-from utils.evaluate import get_input_data
-from catboost import CatBoostRegressor
+from utils.pipeline import run_pipeline_and_log
 
 import numpy as np
 import time
 import mlflow
 import logging 
 
-def bayes_search_catboost(model_name="bayes-search-catboost"):
-    data_a, data_b, data_c = load_data()
+def bayes_search_catboost(drop_cols, model_name="bayes-search-catboost"):
+    start_time = time.time()
+    logger = logging.getLogger()
 
+    logger.info('Preprocessing data')
+    data_a, data_b, data_c = load_data()
     X_test_a, X_test_b, X_test_c = get_test_data()
     X_train_a, y_train_a = get_train_targets(data_a)
     X_train_b, y_train_b = get_train_targets(data_b)
     X_train_c, y_train_c = get_train_targets(data_c)
+    logger.info('Done preprocessing data')
 
-    logger = logging.getLogger()
-    logger.info(model_name)
+    if drop_cols: 
+        model_name = model_name + '-drop-cols'
+        logger.info(model_name)
 
-    start_time = time.time()
-
-    drop_cols = ['time', 'date_calc', 'elevation:m', 'fresh_snow_1h:cm', 'wind_speed_u_10m:ms', 
+        drop_cols_lst = ['time', 'date_calc', 'elevation:m', 'fresh_snow_1h:cm', 'wind_speed_u_10m:ms', 
             'wind_speed_u_10m:ms', 'wind_speed_v_10m:ms', 'wind_speed_w_1000hPa:ms', 'prob_rime:p',
             'fresh_snow_12h:cm','fresh_snow_24h:cm', 'fresh_snow_6h:cm', 'super_cooled_liquid_water:kgm2']
-
-
-    data_process_pipeline = Pipeline([
-        ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
-    ])
+        
+        data_process_pipeline = Pipeline([
+            ('drop_cols', ColumnDropper(drop_cols=drop_cols_lst)),
+            ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
+        ])
+    else: 
+        model_name = model_name + '-all-features'
+        logger.info(model_name)
+        data_process_pipeline = Pipeline([
+            ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
+        ])
 
     locA_pipeline = Pipeline([
         ('data_process', data_process_pipeline),
@@ -49,7 +54,7 @@ def bayes_search_catboost(model_name="bayes-search-catboost"):
 
     locB_pipeline = Pipeline([
         ('data_process', data_process_pipeline),
-        ('random_forest', CatBoostRegressor(silent=True))
+        ('cat_boost', CatBoostRegressor(silent=True))
     ])
 
     locC_pipeline = Pipeline([
@@ -63,7 +68,6 @@ def bayes_search_catboost(model_name="bayes-search-catboost"):
         'cat_boost__learning_rate': Real(0.01, 0.2, prior='log-uniform'),
         'cat_boost__depth': Integer(3, 8),
     }
-
 
     bayes_search_a = BayesSearchCV(locA_pipeline, search_space_catboost, cv=5, scoring='neg_mean_squared_error')
     bayes_search_b = BayesSearchCV(locB_pipeline, search_space_catboost, cv=5, scoring='neg_mean_squared_error')

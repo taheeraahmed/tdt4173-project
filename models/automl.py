@@ -1,9 +1,10 @@
-"""Run overnight / late"""
 
 from tpot import TPOTRegressor
-from utils.auto_ml_data import load_data, get_train_targets, get_test_data, prepare_submission, remove_ouliers
+from utils.data_preprocess_location import load_data, get_train_targets, get_test_data, prepare_submission, remove_ouliers
+from utils.data_preprocess import ColumnDropper
 from utils.generate_run_name import generate_run_name
 from sklearn.model_selection import train_test_split, RepeatedKFold
+
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
@@ -13,20 +14,6 @@ import numpy as np
 import logging
 
 import mlflow
-
-class ColumnDropper(BaseEstimator, TransformerMixin):
-    """Drops columns from the data."""
-
-    def __init__(self, drop_cols = []):
-        self.drop_cols = drop_cols
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        X_copy = X.copy()
-        return X_copy.drop(columns=self.drop_cols)
-
 
 def run_tpot_and_log(X, y, location):
     with mlflow.start_run(run_name=f"TPOT_{location}"):
@@ -87,7 +74,6 @@ def automl(model_name='auto-ml'):
     run_name = generate_run_name()
 
     logger.info('Processing data')
-    X_test_a, X_test_b, X_test_c = get_test_data()
     data_a, data_b, data_c = load_data()
 
     data_a = remove_ouliers(data_a)
@@ -158,4 +144,4 @@ def automl(model_name='auto-ml'):
     logger.info("Run pipeline for location C")
     pred_c = run_pipeline_and_log(locC_pipeline, X_train_c, targets_c, X_test_c, "C-" + run_name)
 
-    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
+    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name)

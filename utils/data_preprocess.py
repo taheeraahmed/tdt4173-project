@@ -5,10 +5,9 @@
 from typing import Tuple
 import pandas as pd
 
-import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 import os
+from sklearn.base import BaseEstimator, TransformerMixin
 
 def check_file_exists(file_path):
     if not os.path.exists(file_path):
@@ -201,4 +200,15 @@ def get_input_data() -> pd.DataFrame:
 
     return test_data
 
+class ColumnDropper(BaseEstimator, TransformerMixin):
+    """Drops columns from the data."""
 
+    def __init__(self, drop_cols = []):
+        self.drop_cols = drop_cols
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_copy = X.copy()
+        return X_copy.drop(columns=self.drop_cols)
