@@ -141,6 +141,11 @@ def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run
     submission_b = X_test_b.copy()
     submission_c = X_test_c.copy()
 
+    # Everything smaller than 0 is set to 0
+    pred_a[pred_a < 0] = 0
+    pred_b[pred_b < 0] = 0
+    pred_c[pred_c < 0] = 0
+
     submission_a["prediction"] = pred_a
     submission_b["prediction"] = pred_b
     submission_c["prediction"] = pred_c
