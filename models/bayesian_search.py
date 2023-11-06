@@ -43,30 +43,32 @@ def bayes_search_catboost(drop_cols, model_name="bayes-search-catboost"):
     else: 
         model_name = model_name + '-all-features'
         logger.info(model_name)
+        drop_cols_lst = ['time', 'date_calc']
         data_process_pipeline = Pipeline([
+            ('drop_cols', ColumnDropper(drop_cols=drop_cols_lst)),
             ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
         ])
 
     locA_pipeline = Pipeline([
         ('data_process', data_process_pipeline),
-        ('cat_boost', CatBoostRegressor(silent=True))
+        ('cat_boost', CatBoostRegressor(silent=True, random_state=2, loss_function='RMSE'))
     ])
 
     locB_pipeline = Pipeline([
         ('data_process', data_process_pipeline),
-        ('cat_boost', CatBoostRegressor(silent=True))
+        ('cat_boost', CatBoostRegressor(silent=True, random_state=3, loss_function='RMSE'))
     ])
 
     locC_pipeline = Pipeline([
         ('data_process', data_process_pipeline),
-        ('cat_boost', CatBoostRegressor(silent=True))
+        ('cat_boost', CatBoostRegressor(silent=True, random_state=2, loss_function='RMSE'))
     ])
     
     # Define the search space for BayesSearchCV
     search_space_catboost = {
-        'cat_boost__iterations': Integer(100, 800),
-        'cat_boost__learning_rate': Real(0.01, 0.2, prior='log-uniform'),
-        'cat_boost__depth': Integer(3, 8),
+        'cat_boost__iterations': Integer(100, 900),
+        'cat_boost__learning_rate': Real(0.01, 0.3, prior='log-uniform'),
+        'cat_boost__depth': Integer(2, 9),
     }
 
     bayes_search_a = BayesSearchCV(locA_pipeline, search_space_catboost, cv=5, scoring='neg_mean_squared_error')
