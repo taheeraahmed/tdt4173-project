@@ -92,7 +92,8 @@ random_searchA = RandomizedSearchCV(
     n_iter=100,  # Number of parameter settings that are sampled
     scoring='neg_mean_squared_error',  # Use negative mean squared error as the evaluation metric
     cv=3,  # Number of cross-validation folds
-    random_state=42,  # Random seed for reproducibility
+    #random_state=42,  # Random seed for reproducibility
+    random_state=12,  # Random seed for reproducibility
     n_jobs=-1,  # Use all available CPU cores
     verbose=1  # Print progress messages
 )
@@ -122,7 +123,8 @@ random_searchB = RandomizedSearchCV(
     n_iter=100,  # Number of parameter settings that are sampled
     scoring='neg_mean_squared_error',  # Use negative mean squared error as the evaluation metric
     cv=3,  # Number of cross-validation folds
-    random_state=42,  # Random seed for reproducibility
+    #random_state=42,  # Random seed for reproducibility
+    random_state=12,  # Random seed for reproducibility
     n_jobs=-1,  # Use all available CPU cores
     verbose=1  # Print progress messages
 )
@@ -151,7 +153,8 @@ random_searchC = RandomizedSearchCV(
     n_iter=100,  # Number of parameter settings that are sampled
     scoring='neg_mean_squared_error',  # Use negative mean squared error as the evaluation metric
     cv=3,  # Number of cross-validation folds
-    random_state=42,  # Random seed for reproducibility
+    #random_state=42,  # Random seed for reproducibility
+    random_state=12,  # Random seed for reproducibility
     n_jobs=-1,  # Use all available CPU cores
     verbose=1  # Print progress messages
 )

@@ -66,10 +66,13 @@ base_models = [
     # ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
     # ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
     # ('cat_boost4', cb.CatBoostRegressor(random_state=4, silent=True)),
-    ('cat_boost1', cb.CatBoostRegressor(random_state=42, silent=True, border_count=86, depth=9, iterations=384, l2_leaf_reg=2.1607264050691626, learning_rate=0.023800792606525824)),
-    ('cat_boost2', cb.CatBoostRegressor(random_state=42, silent=True, border_count=81, depth=8, iterations=704, l2_leaf_reg=9.448753109694545, learning_rate=0.01698158072074776)),
-    ('cat_boost3', cb.CatBoostRegressor(random_state=42, silent=True, border_count=81, depth=8, iterations=704, l2_leaf_reg=9.448753109694545, learning_rate=0.01698158072074776)),
-    ('cat_boost4', cb.CatBoostRegressor(random_state=42, silent=True))
+    ('cat_boost1', cb.CatBoostRegressor(random_state=42, silent=True, border_count=86, depth=9, iterations=384, l2_leaf_reg=2.1607264050691626, learning_rate=0.023800792606525824)), #rand search locA seed 42
+    ('cat_boost2', cb.CatBoostRegressor(random_state=42, silent=True, border_count=81, depth=8, iterations=704, l2_leaf_reg=9.448753109694545, learning_rate=0.01698158072074776)), # rand search locB seed 42
+    ('cat_boost3', cb.CatBoostRegressor(random_state=42, silent=True, border_count=81, depth=8, iterations=704, l2_leaf_reg=9.448753109694545, learning_rate=0.01698158072074776)), # rand search locC seed 42
+    ('cat_boost4', cb.CatBoostRegressor(random_state=42, silent=True)),
+    # ('cat_boost5', cb.CatBoostRegressor(random_state=42, silent=True, border_count=216, depth=9, iterations=283, l2_leaf_reg=6.23940646995615, learning_rate=0.04453689534724951)), # rand search locA seed 12
+    # ('cat_boost6', cb.CatBoostRegressor(random_state=42, silent=True, border_count=250, depth=9, iterations=124, l2_leaf_reg=7.1343511453892265, learning_rate=0.04716464647756951)), # rand search locB seed 12
+    # ('cat_boost7', cb.CatBoostRegressor(random_state=42, silent=True, border_count=138, depth=7, iterations=239, l2_leaf_reg=5.292895897731217, learning_rate=0.04698405236342185)), # rand search locc seed 12
 ]
 
 # Define meta-learner
@@ -78,7 +81,7 @@ meta_learner = LinearRegression()
 # Create the stacking regressor
 stacked_model = StackingRegressor(estimators=base_models, final_estimator=meta_learner)
 
-#NOTE: can instead of using the sacked model just run a single model below:
+#NOTE: can instead of using the stacked model just run a single model below:
 whole_model_pipeline = Pipeline([
     ('data_process', data_process_pipeline),
     ('stacked_model', stacked_model)
@@ -99,4 +102,4 @@ pred_c = whole_model_pipeline.predict(X_test_c.drop(columns=["id", "prediction",
 submission = prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
 submission['prediction'] = submission['prediction'].apply(lambda x: 0 if x < 0.05 else x)
 
-submission.to_csv('submissions/stacked_catboost_new_params.csv', index=False)
+submission.to_csv('submissions/stacked_catboost_.csv', index=False)
