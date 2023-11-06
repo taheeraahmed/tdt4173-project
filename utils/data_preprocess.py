@@ -212,3 +212,17 @@ class ColumnDropper(BaseEstimator, TransformerMixin):
     def transform(self, X):
         X_copy = X.copy()
         return X_copy.drop(columns=self.drop_cols)
+    
+class FeatureAdder(BaseEstimator, TransformerMixin):
+    """Adds features."""
+
+    def __init__(self, drop_cols = []):
+        self.drop_cols = drop_cols
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_copy = X.copy()
+        X_copy['month'] = X_copy['time'].apply(lambda x: x.month)
+        return X_copy

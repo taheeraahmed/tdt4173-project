@@ -1,5 +1,6 @@
 from utils.data_preprocess import ColumnDropper, FeatureAdder
-from utils.data_preprocess_location import get_train_targets, remove_ouliers, load_data, get_test_data, prepare_submission
+from utils.data_preprocess_location import get_train_targets, load_data, get_test_data, prepare_submission
+from utils.generate_run_name import generate_run_name
 import numpy as np
 import logging
 from sklearn.pipeline import Pipeline
@@ -12,10 +13,6 @@ def stacked_catboost():
     logger = logging.getLogger()
     logger.info('Processing data')
     data_a, data_b, data_c = load_data()
-
-    data_a = remove_ouliers(data_a)
-    data_b = remove_ouliers(data_b)
-    data_c = remove_ouliers(data_c)
 
     X_train_a, targets_a = get_train_targets(data_a)
     X_train_b, targets_b = get_train_targets(data_b)
@@ -33,6 +30,7 @@ def stacked_catboost():
         ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
     ])
+    run_name = generate_run_name()
 
     # Define base models
     base_models = [
@@ -58,16 +56,16 @@ def stacked_catboost():
         ('stacked_model', stacked_model)
     ])
 
-    print("training location A model")
+    logger.info("training location A model")
     whole_model_pipeline.fit(X_train_a, targets_a)
     pred_a = whole_model_pipeline.predict(X_test_a.drop(columns=["id", "prediction", "location"]))
 
-    print("training location B model")
+    logger.info("training location B model")
     whole_model_pipeline.fit(X_train_b, targets_b)
     pred_b = whole_model_pipeline.predict(X_test_b.drop(columns=["id", "prediction", "location"]))
 
-    print("training location C model")
+    logger.info("training location C model")
     whole_model_pipeline.fit(X_train_c, targets_c)
     pred_c = whole_model_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
 
-    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
+    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name=run_name)

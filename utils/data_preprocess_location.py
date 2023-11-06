@@ -34,7 +34,7 @@ def remove_ouliers(data):
 
     return filtered_data
 
-def load_data():
+def load_data(outliers_removal=True):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -83,6 +83,11 @@ def load_data():
     data_a = data_a.dropna(subset=['pv_measurement'])
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
+
+    if outliers_removal: 
+        data_a = remove_ouliers(data_a)
+        data_b = remove_ouliers(data_b)
+        data_c = remove_ouliers(data_c)
 
     return data_a, data_b, data_c
 
