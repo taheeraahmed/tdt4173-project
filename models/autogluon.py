@@ -38,25 +38,24 @@ def autogluon(model_name = 'autogluon'):
 
     logger.info('Done processing data')
 
-    # Train the model
-    logger.info('Training 4 location A')
-    model_a = TabularPredictor(label=label, problem_type='regression').fit(data_a)
-    logger.info('Training 4 location B')
-    model_b = TabularPredictor(label=label, problem_type='regression').fit(data_b)
-    logger.info('Training 4 location C')
-    model_c = TabularPredictor(label=label, problem_type='regression').fit(data_c)
+    # Assuming 'logger' is already defined and 'label' and 'run_name' are defined elsewhere
+    data_frames = [('A', data_a, X_test_a), ('B', data_b, X_test_b), ('C', data_c, X_test_c)]
+    models = {}
+    predictions = {}
 
-    # Save the model
-    logger.info('Training 4 location A')
-    model_a.save('autogluon/a')
-    logger.info('Training 4 location B')
-    model_b.save('autogluon/b')
-    logger.info('Training 4 location C')
-    model_c.save('autogluon/c')
+    for location, data, X_test in data_frames:
+        # Train the model
+        logger.info(f'Training for location {location}')
+        model = TabularPredictor(label=label, problem_type='regression').fit(data)
+        models[location] = model
 
-    # Make predictions
-    pred_a = model_a.predict(X_test_a.drop(columns=["id", "prediction", "location"]))
-    pred_b = model_b.predict(X_test_b.drop(columns=["id", "prediction", "location"]))
-    pred_c = model_c.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
+        # Save the model
+        model_path = f'autogluon/{location.lower()}'
+        model.save(model_path)
+        logger.info(f'Model saved for location {location} at {model_path}')
 
-    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name)
+        # Make predictions
+        predictions[location] = model.predict(X_test.drop(columns=["id", "prediction", "location"]))
+
+    # Prepare submission
+    prepare_submission(X_test_a, X_test_b, X_test_c, predictions['A'], predictions['B'], predictions['C'], run_name)
