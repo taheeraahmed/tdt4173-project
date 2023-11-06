@@ -144,7 +144,7 @@ def run_tpot_and_log(X, y, location, run_name):
         mlflow.log_metric("neg_mean_absolute_error", tpot._optimized_pipeline_score)
         
         # Export the pipeline to a python script
-        export_file = f'tpot/tpot_{location}_best_model.py'
+        export_file = f'tpot/tpot_{location}-{run_name}_best_model.py'
         tpot.export(export_file)
         
         # Log the exported pipeline script as an artifact
