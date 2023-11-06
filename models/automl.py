@@ -4,16 +4,19 @@ from utils.data_preprocess_location import load_data, get_train_targets, get_tes
 from utils.data_preprocess import ColumnDropper
 from utils.generate_run_name import generate_run_name
 from sklearn.model_selection import train_test_split, RepeatedKFold
-
-from sklearn.pipeline import Pipeline
-from sklearn.base import BaseEstimator, TransformerMixin
+from tpot.builtins import ZeroCount, StackingEstimator
+from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+from sklearn.linear_model import RidgeCV
+from sklearn.preprocessing import RobustScaler
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 import numpy as np
+import pandas as pd
 import logging
-
 import mlflow
+from utils.pipeline import run_pipeline_and_log
 
 def run_tpot_and_log(X, y, location, run_name):
     with mlflow.start_run(run_name=f"TPOT-{location}-{run_name}"):
@@ -38,26 +41,7 @@ def run_tpot_and_log(X, y, location, run_name):
         # Log the exported pipeline script as an artifact
         mlflow.log_artifact(export_file, "tpot_models")
 
-def run_pipeline_and_log(pipeline, X_train, y_train, X_test, location,run_name):
-    with mlflow.start_run(run_name=f"pipeline-{location}-{run_name}"):
-        # Fit the pipeline
-        pipeline.fit(X_train, y_train)
-        
-        predictions = pipeline.predict(X_test.drop(columns=["id", "prediction", "location"]))
-        
-        if 'random_forest' in pipeline.named_steps:
-            rf = pipeline.named_steps['random_forest']
-            mlflow.log_param("n_estimators", rf.n_estimators)
-            mlflow.log_param("max_features", rf.max_features)
-        
-        
-        mlflow.sklearn.log_model(pipeline, f"pipeline-{location}-{run_name}")
-        
-        np.savetxt(f"predictions_{location}.csv", predictions, delimiter=",")
-        mlflow.log_artifact(f"predictions_{location}.csv")
-    return predictions
-
-def automl(model_name='auto-ml'):
+def tpot_main(model_name='auto-ml'):
 
     logger = logging.getLogger()
 
@@ -107,26 +91,63 @@ def automl(model_name='auto-ml'):
     logger.info("tpot regressor for location C")
     run_tpot_and_log(X_C, y_C, "C", run_name)
 
-    # ---- run 
+def run_tpot_pipeline():
+    logger = logging.getLogger()
+    logger.info('Processing data')
+    data_a, data_b, data_c = load_data()
+
+    data_a = remove_ouliers(data_a)
+    data_b = remove_ouliers(data_b)
+    data_c = remove_ouliers(data_c)
+
+    X_train_a, targets_a = get_train_targets(data_a)
+    X_train_b, targets_b = get_train_targets(data_b)
+    X_train_c, targets_c = get_train_targets(data_c)
+
+    X_test_a, X_test_b, X_test_c = get_test_data()
+
+
+    drop_cols = ['time', 'date_calc', 'elevation:m', 'fresh_snow_1h:cm', 'wind_speed_u_10m:ms', 
+                'wind_speed_u_10m:ms', 'wind_speed_v_10m:ms', 'wind_speed_w_1000hPa:ms', 'prob_rime:p',
+                'fresh_snow_12h:cm','fresh_snow_24h:cm', 'fresh_snow_6h:cm', 'super_cooled_liquid_water:kgm2']
+
+    logger.info('Done processing data')
+    
     data_process_pipeline = Pipeline([
         ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
     ])
 
-    locA_pipeline = Pipeline([
-        ('data_process', data_process_pipeline),
-        ('random_forest', XGBRegressor(learning_rate=0.1, max_depth=9, min_child_weight=6, n_estimators=100, n_jobs=1, objective="reg:squarederror", subsample=0.7000000000000001, verbosity=0))
-    ])
+    locA_pipeline = make_pipeline(
+        data_process_pipeline,
+        RobustScaler(),
+        StackingEstimator(estimator=RidgeCV()),
+        StackingEstimator(estimator=RandomForestRegressor(bootstrap=True, max_features=0.1, min_samples_leaf=3, min_samples_split=3, n_estimators=100)),
+        StackingEstimator(estimator=RandomForestRegressor(bootstrap=True, max_features=0.1, min_samples_leaf=3, min_samples_split=3, n_estimators=100)),
+        ExtraTreesRegressor(bootstrap=False, max_features=0.5, min_samples_leaf=1, min_samples_split=6, n_estimators=100)
+    )
 
-    locB_pipeline = Pipeline([
-        ('data_process', data_process_pipeline),
-        ('random_forest', RandomForestRegressor(bootstrap=False, max_features=0.4, min_samples_leaf=5, min_samples_split=2, n_estimators=100, random_state=1))
-    ])
+    locB_pipeline = make_pipeline(
+        data_process_pipeline,
+        StandardScaler(),
+        RobustScaler(),
+        MinMaxScaler(),
+        StackingEstimator(estimator=RidgeCV()),
+        StackingEstimator(estimator=RandomForestRegressor(bootstrap=False, max_features=0.1, min_samples_leaf=4, min_samples_split=2, n_estimators=100)),
+        RobustScaler(),
+        StackingEstimator(estimator=RandomForestRegressor(bootstrap=False, max_features=0.1, min_samples_leaf=4, min_samples_split=2, n_estimators=100)),
+        StackingEstimator(estimator=RandomForestRegressor(bootstrap=False, max_features=0.1, min_samples_leaf=4, min_samples_split=2, n_estimators=100)),
+        ExtraTreesRegressor(bootstrap=False, max_features=0.35000000000000003, min_samples_leaf=1, min_samples_split=5, n_estimators=100)
+    )
 
-    locC_pipeline = Pipeline([
-        ('data_process', data_process_pipeline),
-        ('random_forest', XGBRegressor(learning_rate=0.1, max_depth=9, min_child_weight=3, n_estimators=100, n_jobs=1, objective="reg:squarederror", subsample=0.8500000000000001, verbosity=0))
-    ])
+    locC_pipeline = make_pipeline(
+        data_process_pipeline,
+        ZeroCount(),
+        MinMaxScaler(),
+        ZeroCount(),
+        XGBRegressor(learning_rate=0.1, max_depth=9, min_child_weight=5, n_estimators=100, n_jobs=1, objective="reg:squarederror", subsample=0.8500000000000001, verbosity=0)
+    )
+    run_name = 'Jimp Jota'
 
     logger.info("Run pipeline for location A")
     pred_a = run_pipeline_and_log(locA_pipeline, X_train_a, targets_a, X_test_a, "A", run_name)
