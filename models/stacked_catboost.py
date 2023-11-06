@@ -9,7 +9,7 @@ from sklearn.ensemble import StackingRegressor
 from sklearn.linear_model import LinearRegression
 import catboost as cb
 
-def stacked_catboost():
+def stacked_catboost(model_name='stacked-catboost'):
     logger = logging.getLogger()
     logger.info('Processing data')
     data_a, data_b, data_c = load_data()
@@ -31,6 +31,8 @@ def stacked_catboost():
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
     ])
     run_name = generate_run_name()
+
+    logger.info(f'Model name: {model_name}')
 
     # Define base models
     base_models = [
