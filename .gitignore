@@ -13,6 +13,7 @@ mlruns/
 # Data and model files (customize as needed)
 submissions/
 catboost_info/
+AutogluonModels/
 
 # Log files
 logs/
