@@ -18,30 +18,7 @@ import logging
 import mlflow
 from utils.pipeline import run_pipeline_and_log
 
-def run_tpot_and_log(X, y, location, run_name):
-    with mlflow.start_run(run_name=f"TPOT-{location}-{run_name}"):
-        cv = RepeatedKFold(n_splits=5, n_repeats=2, random_state=42)
-        tpot = TPOTRegressor(generations=100, population_size=100, scoring='neg_mean_absolute_error', cv=cv, verbosity=2, random_state=1, n_jobs=-1)
-        
-        tpot.fit(X, y)
-        
-        # Log parameters
-        mlflow.log_param("location", location)
-        mlflow.log_param("generations", 100)
-        mlflow.log_param("population_size", 100)
-        mlflow.log_param("scoring", 'neg_mean_absolute_error')
-        
-        # Log best score
-        mlflow.log_metric("neg_mean_absolute_error", tpot._optimized_pipeline_score)
-        
-        # Export the pipeline to a python script
-        export_file = f'tpot/tpot_{location}_best_model.py'
-        tpot.export(export_file)
-        
-        # Log the exported pipeline script as an artifact
-        mlflow.log_artifact(export_file, "tpot_models")
-
-def tpot_main(model_name='auto-ml'):
+def tpot_find_models(model_name='auto-ml'):
 
     logger = logging.getLogger()
 
@@ -50,10 +27,6 @@ def tpot_main(model_name='auto-ml'):
 
     logger.info('Processing data')
     data_a, data_b, data_c = load_data()
-
-    data_a = remove_ouliers(data_a)
-    data_b = remove_ouliers(data_b)
-    data_c = remove_ouliers(data_c)
 
     X_train_a, targets_a = get_train_targets(data_a)
     X_train_b, targets_b = get_train_targets(data_b)
@@ -95,10 +68,6 @@ def run_tpot_pipeline():
     logger = logging.getLogger()
     logger.info('Processing data')
     data_a, data_b, data_c = load_data()
-
-    data_a = remove_ouliers(data_a)
-    data_b = remove_ouliers(data_b)
-    data_c = remove_ouliers(data_c)
 
     X_train_a, targets_a = get_train_targets(data_a)
     X_train_b, targets_b = get_train_targets(data_b)
@@ -157,3 +126,26 @@ def run_tpot_pipeline():
     pred_c = run_pipeline_and_log(locC_pipeline, X_train_c, targets_c, X_test_c, "C",run_name)
 
     prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name)
+
+def run_tpot_and_log(X, y, location, run_name):
+    with mlflow.start_run(run_name=f"TPOT-{location}-{run_name}"):
+        cv = RepeatedKFold(n_splits=5, n_repeats=2, random_state=42)
+        tpot = TPOTRegressor(generations=100, population_size=100, scoring='neg_mean_absolute_error', cv=cv, verbosity=2, random_state=1, n_jobs=-1)
+        
+        tpot.fit(X, y)
+        
+        # Log parameters
+        mlflow.log_param("location", location)
+        mlflow.log_param("generations", 100)
+        mlflow.log_param("population_size", 100)
+        mlflow.log_param("scoring", 'neg_mean_absolute_error')
+        
+        # Log best score
+        mlflow.log_metric("neg_mean_absolute_error", tpot._optimized_pipeline_score)
+        
+        # Export the pipeline to a python script
+        export_file = f'tpot/tpot_{location}_best_model.py'
+        tpot.export(export_file)
+        
+        # Log the exported pipeline script as an artifact
+        mlflow.log_artifact(export_file, "tpot_models")
