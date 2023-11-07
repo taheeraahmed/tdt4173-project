@@ -7,6 +7,7 @@ env/
 tdt4173-project/
 mlruns/
 .venv/
+idun_out/
 
 *.txt
 
