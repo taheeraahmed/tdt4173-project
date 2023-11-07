@@ -48,6 +48,22 @@ def load_data():
     X_train_estimated_b = pd.read_parquet('data/B/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
     X_train_estimated_c = pd.read_parquet('data/C/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
 
+    # --- get features for each hour before concatinating ---
+    X_train_observed_a = get_hourly(X_train_observed_a)
+    X_train_observed_b = get_hourly(X_train_observed_b)
+    X_train_observed_c = get_hourly(X_train_observed_c)
+
+    X_train_estimated_a = get_hourly(X_train_estimated_a)
+    X_train_estimated_b = get_hourly(X_train_estimated_b)
+    X_train_estimated_c = get_hourly(X_train_estimated_c)
+
+    X_train_observed_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_observed_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_observed_c.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
+
     # --- merge observed and estimated data with target data, lining up time-stamps correctly ----
     train_obs_a = pd.merge(train_a, X_train_observed_a, on='time', how='inner')
     train_obs_b = pd.merge(train_b, X_train_observed_b, on='time', how='inner') # NOTE: 4 missing values for target
@@ -85,6 +101,29 @@ def remove_ouliers(data):
     filtered_data = data[~constant_mask]
 
     return filtered_data
+
+
+def get_hourly(df):
+    
+    df["minute"] = df["time"].dt.minute
+
+    min_vals = df["minute"].unique()
+
+    df_list = []
+
+    for value in min_vals:
+        filtered_data = df[df['minute'] == value].copy()
+        filtered_data.drop(columns=['minute'], inplace=True)
+        filtered_data.columns = [f'{col}_{value}' for col in filtered_data.columns]
+        filtered_data["time_hour"] = filtered_data["time_"+str(value)].apply(lambda x: x.floor('H'))
+        df_list.append(filtered_data)
+
+    # merge df's on hourly time
+    merged_df = pd.merge(df_list[0], df_list[1], on="time_hour")
+    for df in df_list[2:]:
+        merged_df = pd.merge(merged_df, df, on="time_hour")
+
+    return merged_df
 
 
 def get_train_targets(data):
