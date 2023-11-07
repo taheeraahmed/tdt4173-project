@@ -224,5 +224,20 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_copy = X.copy()
+
+        # add moth
         X_copy['month'] = X_copy['time'].apply(lambda x: x.month)
+
+        # add hour
+        X_copy['hour'] = X_copy['time'].apply(lambda x: x.hour)
+
+        # -- additive effects:
+        #X_copy["sun_rad_1"] = (X_copy['sun_azimuth:d'] * X_copy['direct_rad:W']) / 1000000
+        X_copy["sun_rad_2"] = (X_copy['sun_elevation:d'] * X_copy['direct_rad:W']) / 1000000
+        #X_copy["sun_wind_1"] = (X_copy['wind_speed_10m:ms'] * X_copy['direct_rad:W']) / 1000
+        X_copy["sun_wind_2"] = (X_copy['wind_speed_10m:ms'] * X_copy['diffuse_rad:W']) / 1000
+        X_copy["temp_sun"] = (X_copy['t_1000hPa:K'] * X_copy['sun_azimuth:d'])/1000
+        X_copy["rad_day_1"] = (X_copy['is_day:idx'] * X_copy['diffuse_rad:W']) / 1000
+        X_copy['mult_coulds'] = (X_copy['clear_sky_rad:W'] * X_copy['cloud_base_agl:m']) / 100000
+
         return X_copy

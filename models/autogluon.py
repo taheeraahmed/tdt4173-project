@@ -15,6 +15,8 @@ def autogluon(model_name = 'autogluon-with-more-feature-eng'):
     logger.info('Processing data')
     data_a, data_b, data_c = load_data(mean=True, roll_avg=True, remove_out=True)
 
+    
+
     X_test_a, X_test_b, X_test_c = get_test_data(mean=True)
 
     # Specify the column name that contains the target variable to predict
