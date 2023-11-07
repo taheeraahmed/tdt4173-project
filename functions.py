@@ -74,6 +74,13 @@ def load_data(mean=False):
     X_train_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
     X_train_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
 
+    X_train_observed_a["estimated_flag"] = 0
+    X_train_observed_b["estimated_flag"] = 0
+    X_train_observed_c["estimated_flag"] = 0
+    X_train_estimated_a["estimated_flag"] = 1
+    X_train_estimated_b["estimated_flag"] = 1
+    X_train_estimated_c["estimated_flag"] = 1
+
     # --- merge observed and estimated data with target data, lining up time-stamps correctly ----
     train_obs_a = pd.merge(train_a, X_train_observed_a, on='time', how='inner')
     train_obs_b = pd.merge(train_b, X_train_observed_b, on='time', how='inner') # NOTE: 4 missing values for target
@@ -186,6 +193,10 @@ def get_test_data(mean=False):
     X_test_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
     X_test_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
     X_test_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
+
+    X_test_estimated_a["estimated_flag"] = 1
+    X_test_estimated_b["estimated_flag"] = 1
+    X_test_estimated_c["estimated_flag"] = 1
 
     # --- load kaggle submission data ---
     test = pd.read_csv('data/test.csv')
