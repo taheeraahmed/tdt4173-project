@@ -6,14 +6,14 @@ from utils.data_preprocess import ColumnDropper
 from sklearn.pipeline import Pipeline
 import numpy as np
 
-def autogluon(model_name = 'autogluon'):
+def autogluon(model_name = 'autogluon-with-more-feature-eng'):
     logger = logging.getLogger()
 
     logger.info(model_name)
     run_name = generate_run_name()
 
     logger.info('Processing data')
-    data_a, data_b, data_c = load_data(mean=True)
+    data_a, data_b, data_c = load_data(mean=True, roll_avg=True, remove_out=True)
 
     X_test_a, X_test_b, X_test_c = get_test_data(mean=True)
 
