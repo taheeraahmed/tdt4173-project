@@ -172,6 +172,8 @@ def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_
     df.set_index('time', inplace=True)
     df.sort_index(inplace=True)
 
+    features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'snow_water:kgm2', 'visibility:m']
+
     # Calculate rolling averages for the specified features
     for feature in features:
         rolling_feature_name = f"{feature}_rolling_avg_{window_size}"
