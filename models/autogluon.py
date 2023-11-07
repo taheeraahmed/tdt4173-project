@@ -13,11 +13,11 @@ def autogluon(model_name = 'autogluon'):
     run_name = generate_run_name()
 
     logger.info('Processing data')
-    data_a, data_b, data_c = load_data()
+    data_a, data_b, data_c = load_data(mean=True)
 
-    X_test_a, X_test_b, X_test_c = get_test_data()
+    X_test_a, X_test_b, X_test_c = get_test_data(mean=True)
 
-    drop_cols_lst = ['time', 'date_calc', 'time_0', 'date_calc_0', 'time_15', 'date_calc_15','time_30', 'date_calc_30', 'time_45', 'date_calc_45']
+    drop_cols_lst = ['time']
     
     data_process_pipeline = Pipeline([
         ('drop_cols', ColumnDropper(drop_cols=drop_cols_lst)),
