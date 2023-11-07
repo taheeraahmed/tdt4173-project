@@ -10,6 +10,8 @@ NOTE: all functions file should be pasted into the long notebook before submissi
 import pandas as pd
 import numpy as np
 import os
+import logging
+import datetime
 
 def check_file_exists(file_path):
     if not os.path.exists(file_path):
@@ -152,6 +154,15 @@ def get_test_data():
     X_test_estimated_b = pd.read_parquet('data/B/X_test_estimated.parquet').rename(columns={'date_forecast': 'time'})
     X_test_estimated_c = pd.read_parquet('data/C/X_test_estimated.parquet').rename(columns={'date_forecast': 'time'})
 
+    # --- get hourly and rename ---
+    X_test_estimated_a = get_hourly(X_test_estimated_a)
+    X_test_estimated_b = get_hourly(X_test_estimated_b)
+    X_test_estimated_c = get_hourly(X_test_estimated_c)
+
+    X_test_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_test_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_test_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
+
     # --- load kaggle submission data ---
     test = pd.read_csv('data/test.csv')
     test["time"] = pd.to_datetime(test["time"]) # convert "time" to datetime format to facilitate merge
@@ -165,6 +176,7 @@ def get_test_data():
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
     return X_test_a, X_test_b, X_test_c
+
 
 def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name):
     """Parses the test data and predictions into a single df in kaggle submission format"""
