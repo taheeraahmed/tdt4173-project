@@ -10,31 +10,13 @@ NOTE: all functions file should be pasted into the long notebook before submissi
 import pandas as pd
 import numpy as np
 import os
-import logging
-import datetime
 
 def check_file_exists(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
-def remove_ouliers(data):
-    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
 
-    threshold = 0.01
-    window_size = 24 
-
-    # Calculate standard deviation for each window
-    std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
-
-    # Identify constant stretches and create a mask to filter out these points
-    constant_mask = std_dev < threshold
-
-    # Filter out constant stretches from the data
-    filtered_data = data[~constant_mask]
-
-    return filtered_data
-
-def load_data(outliers_removal=True):
+def load_data():
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -66,6 +48,22 @@ def load_data(outliers_removal=True):
     X_train_estimated_b = pd.read_parquet('data/B/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
     X_train_estimated_c = pd.read_parquet('data/C/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
 
+    # --- get features for each hour before concatinating ---
+    X_train_observed_a = get_hourly(X_train_observed_a)
+    X_train_observed_b = get_hourly(X_train_observed_b)
+    X_train_observed_c = get_hourly(X_train_observed_c)
+
+    X_train_estimated_a = get_hourly(X_train_estimated_a)
+    X_train_estimated_b = get_hourly(X_train_estimated_b)
+    X_train_estimated_c = get_hourly(X_train_estimated_c)
+
+    X_train_observed_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_observed_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_observed_c.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
+
     # --- merge observed and estimated data with target data, lining up time-stamps correctly ----
     train_obs_a = pd.merge(train_a, X_train_observed_a, on='time', how='inner')
     train_obs_b = pd.merge(train_b, X_train_observed_b, on='time', how='inner') # NOTE: 4 missing values for target
@@ -84,12 +82,48 @@ def load_data(outliers_removal=True):
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
 
-    if outliers_removal: 
-        data_a = remove_ouliers(data_a)
-        data_b = remove_ouliers(data_b)
-        data_c = remove_ouliers(data_c)
-
     return data_a, data_b, data_c
+
+
+def remove_ouliers(data):
+    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
+
+    threshold = 0.01
+    window_size = 24 
+
+    # Calculate standard deviation for each window
+    std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
+
+    # Identify constant stretches and create a mask to filter out these points
+    constant_mask = std_dev < threshold
+
+    # Filter out constant stretches from the data
+    filtered_data = data[~constant_mask]
+
+    return filtered_data
+
+
+def get_hourly(df):
+    
+    df["minute"] = df["time"].dt.minute
+
+    min_vals = df["minute"].unique()
+
+    df_list = []
+
+    for value in min_vals:
+        filtered_data = df[df['minute'] == value].copy()
+        filtered_data.drop(columns=['minute'], inplace=True)
+        filtered_data.columns = [f'{col}_{value}' for col in filtered_data.columns]
+        filtered_data["time_hour"] = filtered_data["time_"+str(value)].apply(lambda x: x.floor('H'))
+        df_list.append(filtered_data)
+
+    # merge df's on hourly time
+    merged_df = pd.merge(df_list[0], df_list[1], on="time_hour")
+    for df in df_list[2:]:
+        merged_df = pd.merge(merged_df, df, on="time_hour")
+
+    return merged_df
 
 
 def get_train_targets(data):
@@ -131,7 +165,6 @@ def get_test_data():
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
     return X_test_a, X_test_b, X_test_c
-
 
 def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name):
     """Parses the test data and predictions into a single df in kaggle submission format"""
