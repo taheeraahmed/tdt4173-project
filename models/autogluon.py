@@ -2,6 +2,9 @@ from autogluon.tabular import TabularDataset, TabularPredictor
 import logging 
 from utils.generate_run_name import generate_run_name
 from utils.data_preprocess_location import load_data, get_test_data, prepare_submission
+from utils.data_preprocess import ColumnDropper
+from sklearn.pipeline import Pipeline
+import numpy as np
 
 def autogluon(model_name = 'autogluon'):
     logger = logging.getLogger()
@@ -14,24 +17,19 @@ def autogluon(model_name = 'autogluon'):
 
     X_test_a, X_test_b, X_test_c = get_test_data()
 
-
-    drop_cols = ['time', 'date_calc', 'elevation:m', 'fresh_snow_1h:cm', 'wind_speed_u_10m:ms', 
-                'wind_speed_u_10m:ms', 'wind_speed_v_10m:ms', 'wind_speed_w_1000hPa:ms', 'prob_rime:p',
-                'fresh_snow_12h:cm','fresh_snow_24h:cm', 'fresh_snow_6h:cm', 'super_cooled_liquid_water:kgm2']
+    drop_cols_lst = ['time', 'date_calc', 'time_0', 'date_calc_0', 'time_15', 'date_calc_15','time_30', 'date_calc_30', 'time_45', 'date_calc_45']
     
-    # Function to drop columns from a dataframe
-    def drop_columns(df, columns):
-        return df.drop(columns=columns, errors='ignore')
-
-    # Drop the columns from all dataframes
-    data_a = drop_columns(data_a, drop_cols)
-    data_b = drop_columns(data_b, drop_cols)
-    data_c = drop_columns(data_c, drop_cols)
-    X_test_a = drop_columns(X_test_a, drop_cols)
-    X_test_b = drop_columns(X_test_b, drop_cols)
-    X_test_c = drop_columns(X_test_c, drop_cols)
-
-    print(data_a.head())
+    data_process_pipeline = Pipeline([
+        ('drop_cols', ColumnDropper(drop_cols=drop_cols_lst)),
+    ])
+    
+    # Apply the pipeline to each dataset
+    data_a = data_process_pipeline.fit_transform(data_a)
+    data_b = data_process_pipeline.fit_transform(data_b)
+    data_c = data_process_pipeline.fit_transform(data_c)
+    X_test_a = data_process_pipeline.transform(X_test_a)
+    X_test_b = data_process_pipeline.transform(X_test_b)
+    X_test_c = data_process_pipeline.transform(X_test_c)
 
     # Specify the column name that contains the target variable to predict
     label = 'pv_measurement'
