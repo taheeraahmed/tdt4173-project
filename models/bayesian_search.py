@@ -34,32 +34,17 @@ def bayes_search_catboost_stacked(drop_cols=True, model_name="bayes-search-stack
         model_name = model_name + '-drop-cols'
         logger.info(model_name)
 
-        drop_cols_lst = ['time', 'date_calc', 'elevation:m', 'fresh_snow_1h:cm',  
-             'wind_speed_u_10m:ms', 'wind_speed_v_10m:ms', 'wind_speed_w_1000hPa:ms', 'prob_rime:p',
-             'fresh_snow_12h:cm','fresh_snow_24h:cm', 'fresh_snow_6h:cm', 'super_cooled_liquid_water:kgm2']
-        
-        data_process_pipeline = Pipeline([
-            ('drop_cols', ColumnDropper(drop_cols=drop_cols_lst)),
-            ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
-        ])
-        
-    else: 
-        model_name = model_name + '-all-features'
-        logger.info(model_name)
         drop_cols_lst = ['time', 'date_calc']
+        
         data_process_pipeline = Pipeline([
             ('drop_cols', ColumnDropper(drop_cols=drop_cols_lst)),
             ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
         ])
 
     base_models = [
-        # ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True)),
-        # ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
-        # ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
-        # ('cat_boost4', cb.CatBoostRegressor(random_state=4, silent=True)),
-        ('cat_boost4', CatBoostRegressor(random_state=42, silent=True, border_count=86, depth=9, iterations=384, l2_leaf_reg=2.1607264050691626, learning_rate=0.023800792606525824)),
-        ('cat_boost3', CatBoostRegressor(random_state=42, silent=True, border_count=81, depth=8, iterations=704, l2_leaf_reg=9.448753109694545, learning_rate=0.01698158072074776)),
-        ('cat_boost2', CatBoostRegressor(random_state=42, silent=True, border_count=81, depth=8, iterations=704, l2_leaf_reg=9.448753109694545, learning_rate=0.01698158072074776)),
+        ('cat_boost4', CatBoostRegressor(random_state=42, silent=True)),
+        ('cat_boost3', CatBoostRegressor(random_state=42, silent=True)),
+        ('cat_boost2', CatBoostRegressor(random_state=42, silent=True)),
         ('cat_boost1', CatBoostRegressor(random_state=42, silent=True))
     ]
 
