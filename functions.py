@@ -16,7 +16,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False):
+def load_data(mean=False, roll_avg=False, remove_out=False):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -99,6 +99,17 @@ def load_data(mean=False):
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
 
+    # add columnns for rolling average
+    if roll_avg:
+        data_a = rolling_average(data_a)
+        data_b = rolling_average(data_b)
+        data_c = rolling_average(data_c)
+
+    if remove_out:
+        data_a = remove_ouliers(data_a)
+        data_b = remove_ouliers(data_b)
+        data_c = remove_ouliers(data_c)
+
     return data_a, data_b, data_c
 
 
@@ -152,6 +163,22 @@ def get_hourly_mean(df):
     mean_df = df.groupby('time_hour').agg('mean').reset_index()
 
     return mean_df
+
+def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
+    # Ensure the 'time' column is datetime and set as index
+    df['time'] = pd.to_datetime(df['time'])
+    df.set_index('time', inplace=True)
+    df.sort_index(inplace=True)
+
+    # Calculate rolling averages for the specified features
+    for feature in features:
+        rolling_feature_name = f"{feature}_rolling_avg_{window_size}"
+        df[rolling_feature_name] = df[feature].rolling(window=window_size).mean()
+
+    # Handle missing data if necessary
+    df.fillna(method='bfill', inplace=True)  # Forward fill
+
+    return df
 
 
 def get_train_targets(data):
