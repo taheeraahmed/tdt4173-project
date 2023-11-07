@@ -18,7 +18,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data():
+def load_data(mean=False):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -84,6 +84,11 @@ def load_data():
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
 
+    if mean: 
+        data_a = calculate_means_and_replace(data_a)
+        data_b = calculate_means_and_replace(data_b)
+        data_c = calculate_means_and_replace(data_c)
+
     return data_a, data_b, data_c
 
 
@@ -135,7 +140,7 @@ def get_train_targets(data):
     return X_train, targets
 
 
-def get_test_data():
+def get_test_data(mean=False):
     """Parse the test data, getting the data that has a kaggle submission id for all locations"""
 
     # --- Check if files exist ---
@@ -175,8 +180,37 @@ def get_test_data():
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
+    if mean: 
+        X_test_a = calculate_means_and_replace(X_test_a)
+        X_test_a = calculate_means_and_replace(X_test_a)
+        X_test_a = calculate_means_and_replace(X_test_a)
+
     return X_test_a, X_test_b, X_test_c
 
+
+def calculate_means_and_replace(df):
+    """
+    Calculate the mean for columns in the DataFrame that match a certain pattern and replace them with a single mean column.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to process.
+    suffix (str): The suffix pattern that identifies the columns for which to calculate the mean.
+
+    Returns:
+    pd.DataFrame: The DataFrame with the original columns replaced by their mean.
+    """
+    # Get the base patterns by stripping the trailing '_<number>'
+    base_patterns = set(col.rsplit('_', 1)[0] for col in df.columns if '_' in col)
+
+    # For each base pattern, calculate the mean and replace the columns
+    for base_pattern in base_patterns:
+        # Find all columns that start with the base pattern and end with a number
+        pattern_columns = [col for col in df.columns if col.startswith(base_pattern) and col.split('_')[-1].isdigit()]
+        # Calculate the mean of these columns
+        df[base_pattern + '_mean'] = df[pattern_columns].mean(axis=1)
+        # Drop the original columns
+        df.drop(pattern_columns, axis=1, inplace=True)
+    return df
 
 def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name):
     """Parses the test data and predictions into a single df in kaggle submission format"""
