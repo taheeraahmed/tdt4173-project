@@ -1,10 +1,318 @@
-scikit-learn=1.3.0
-pandas
-numpy
-ipykernel
-pyarrow
-fastparquet
-pyfiglet
-mlflow
-nltk
-seaborn
+absl-py==2.0.0
+accelerate==0.16.0
+aiohttp==3.8.6
+aiohttp-cors==0.7.0
+aiosignal==1.3.1
+alabaster @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/alabaster/alabaster-0.7.12
+alembic==1.12.0
+aliyun-python-sdk-core==2.14.0
+aliyun-python-sdk-kms==2.16.2
+antlr4-python3-runtime==4.9.3
+appdirs @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/appdirs/appdirs-1.4.4
+asn1crypto @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/asn1crypto/asn1crypto-1.5.1
+async-timeout==4.0.3
+atomicwrites @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/atomicwrites/atomicwrites-1.4.1
+attrs @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/attrs/attrs-22.1.0
+autogluon==0.8.2
+autogluon.common==0.8.2
+autogluon.core==0.8.2
+autogluon.features==0.8.2
+autogluon.multimodal==0.8.2
+autogluon.tabular==0.8.2
+autogluon.timeseries==0.8.2
+Babel @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/Babel/Babel-2.11.0
+backports.entry-points-selectable @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/backportsentrypointsselectable/backports.entry_points_selectable-1.2.0
+backports.functools-lru-cache @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/backportsfunctools_lru_cache/backports.functools_lru_cache-1.6.4
+bcrypt @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/bcrypt/bcrypt-4.0.1
+beautifulsoup4==4.12.2
+bitstring @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/bitstring/bitstring-3.1.9
+blessed==1.20.0
+blinker==1.6.3
+blis==0.7.11
+blist @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/blist/blist-1.3.6
+boto3==1.28.78
+botocore==1.31.78
+CacheControl @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/CacheControl/CacheControl-0.12.11
+cachetools==5.3.2
+cachy @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/cachy/cachy-0.3.0
+catalogue==2.0.10
+catboost==1.2.2
+certifi @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/certifi/certifi-2022.9.24
+cffi @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/cffi/cffi-1.15.1
+chardet @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/chardet/chardet-5.0.0
+charset-normalizer @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/charsetnormalizer/charset-normalizer-2.1.1
+cleo @ file:///cluster/apps/eb/sources/p/Python/extensions/cleo-1.0.0a5-py3-none-any.whl
+click @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/click/click-8.1.3
+clikit @ file:///cluster/apps/eb/sources/p/Python/extensions/clikit-0.6.2-py2.py3-none-any.whl
+cloudpathlib==0.16.0
+cloudpickle @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/cloudpickle/cloudpickle-2.2.0
+colorama @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/colorama/colorama-0.4.6
+colorful==0.5.5
+commonmark @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/commonmark/commonmark-0.9.1
+confection==0.1.3
+contourpy==1.1.1
+crashtest @ file:///cluster/apps/eb/sources/p/Python/extensions/crashtest-0.3.1-py3-none-any.whl
+crcmod==1.7
+cryptography @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/cryptography/cryptography-38.0.3
+cycler==0.12.1
+cymem==2.0.8
+Cython @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/Cython/Cython-0.29.32
+databricks-cli==0.18.0
+datasets==2.14.6
+deap==1.4.1
+decorator @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/decorator/decorator-5.1.1
+defusedxml==0.7.1
+dill==0.3.7
+distlib @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/distlib/distlib-0.3.6
+docker==6.1.3
+docopt @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/docopt/docopt-0.6.2
+docutils @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/docutils/docutils-0.19
+doit @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/doit/doit-0.36.0
+dulwich @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/dulwich/dulwich-0.20.50
+ecdsa @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/ecdsa/ecdsa-0.18.0
+editables @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/editables/editables-0.3
+entrypoints==0.4
+evaluate==0.3.0
+exceptiongroup @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/exceptiongroup/exceptiongroup-1.0.1
+execnet @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/execnet/execnet-1.9.0
+fastai==2.7.13
+fastcore==1.5.29
+fastdownload==0.0.7
+fastprogress==1.0.3
+filelock @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/filelock/filelock-3.8.0
+Flask==2.3.3
+flit @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/flit/flit-3.8.0
+flit_core @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/flit_core/flit_core-3.8.0
+flit_scm @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/flit_scm/flit_scm-1.7.0
+fonttools==4.43.1
+frozenlist==1.4.0
+fsspec==2023.10.0
+future @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/future/future-0.18.2
+gdown==4.7.1
+gitdb==4.0.10
+GitPython==3.1.38
+glob2 @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/glob2/glob2-0.7
+gluonts==0.13.7
+google-api-core==2.12.0
+google-auth==2.23.4
+google-auth-oauthlib==1.1.0
+googleapis-common-protos==1.61.0
+gpustat==1.1.1
+graphviz==0.20.1
+greenlet==3.0.0
+grpcio==1.50.0
+gunicorn==21.2.0
+hatch-fancy-pypi-readme @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/hatch_fancy_pypi_readme/hatch_fancy_pypi_readme-22.8.0
+hatch-vcs @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/hatch_vcs/hatch_vcs-0.2.0
+hatchling @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/hatchling/hatchling-1.11.1
+html5lib @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/html5lib/html5lib-1.1
+huggingface-hub==0.18.0
+hyperopt==0.2.7
+idna @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/idna/idna-3.4
+imageio==2.32.0
+imagesize @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/imagesize/imagesize-1.4.1
+importlib-metadata @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/importlib_metadata/importlib_metadata-5.0.0
+importlib-resources @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/importlib_resources/importlib_resources-5.10.0
+iniconfig @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/iniconfig/iniconfig-1.1.1
+intervaltree @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/intervaltree/intervaltree-3.1.0
+intreehooks @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/intreehooks/intreehooks-1.0
+ipaddress @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/ipaddress/ipaddress-1.0.23
+itsdangerous==2.1.2
+jaraco.classes @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/jaracoclasses/jaraco.classes-3.2.3
+jeepney @ file:///cluster/apps/eb/sources/p/Python/extensions/jeepney-0.8.0-py3-none-any.whl
+Jinja2 @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/Jinja2/Jinja2-3.1.2
+jmespath==0.10.0
+joblib @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/joblib/joblib-1.2.0
+jsonschema @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/jsonschema/jsonschema-4.17.0
+keyring @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/keyring/keyring-23.11.0
+keyrings.alt @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/keyringsalt/keyrings.alt-4.2.0
+kiwisolver==1.4.5
+langcodes==3.3.0
+liac-arff @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/liacarff/liac-arff-2.5.0
+lightgbm==3.3.5
+lightning-utilities==0.9.0
+llvmlite==0.41.1
+lockfile @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/lockfile/lockfile-0.12.2
+Mako==1.2.4
+Markdown==3.5
+markdown-it-py==3.0.0
+MarkupSafe @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/MarkupSafe/MarkupSafe-2.1.1
+matplotlib==3.8.0
+mdurl==0.1.2
+missingpy==0.2.0
+mlflow==2.7.1
+mlforecast==0.7.3
+mock @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/mock/mock-4.0.3
+model-index==0.1.11
+more-itertools @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/moreitertools/more-itertools-9.0.0
+msgpack @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/msgpack/msgpack-1.0.4
+multidict==6.0.4
+multiprocess==0.70.15
+murmurhash==1.0.10
+netaddr @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/netaddr/netaddr-0.8.0
+netifaces @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/netifaces/netifaces-0.11.0
+networkx==3.2.1
+nlpaug==1.1.11
+nltk==3.8.1
+nptyping==2.4.1
+numba==0.58.1
+numpy==1.23.1
+nvidia-cublas-cu11==11.10.3.66
+nvidia-cuda-nvrtc-cu11==11.7.99
+nvidia-cuda-runtime-cu11==11.7.99
+nvidia-cudnn-cu11==8.5.0.96
+nvidia-ml-py==12.535.133
+oauthlib==3.2.2
+omegaconf==2.2.3
+opencensus==0.11.3
+opencensus-context==0.1.3
+opendatalab==0.0.10
+openmim==0.3.9
+openxlab==0.0.28
+ordered-set==4.1.0
+oss2==2.17.0
+packaging @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/packaging/packaging-21.3
+pandas==1.5.3
+paramiko @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/paramiko/paramiko-2.12.0
+pastel @ file:///cluster/apps/eb/sources/p/Python/extensions/pastel-0.2.1-py2.py3-none-any.whl
+pathlib2 @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pathlib2/pathlib2-2.3.7.post1
+pathspec @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pathspec/pathspec-0.10.1
+patsy==0.5.3
+pbr @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pbr/pbr-5.11.0
+pexpect @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pexpect/pexpect-4.8.0
+Pillow==9.5.0
+pkginfo @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pkginfo/pkginfo-1.8.3
+platformdirs @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/platformdirs/platformdirs-2.5.3
+plotly==5.18.0
+pluggy @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pluggy/pluggy-1.0.0
+poetry @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/poetry/poetry-1.2.2
+poetry-core @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/poetrycore/poetry-core-1.3.2
+poetry-plugin-export @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/poetry_plugin_export/poetry_plugin_export-1.2.0
+pooch @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pooch/pooch-1.6.0
+preshed==3.0.9
+prometheus-client==0.18.0
+protobuf==3.20.2
+psutil @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/psutil/psutil-5.9.4
+ptyprocess @ file:///cluster/apps/eb/sources/p/Python/extensions/ptyprocess-0.7.0-py2.py3-none-any.whl
+py @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/py/py-1.11.0
+py-expression-eval @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/py_expression_eval/py_expression_eval-0.3.14
+py-spy==0.3.14
+py4j==0.10.9.7
+pyaml==23.9.7
+pyarrow==13.0.0
+pyasn1 @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pyasn1/pyasn1-0.4.8
+pyasn1-modules==0.3.0
+pycparser @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pycparser/pycparser-2.21
+pycryptodome @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pycryptodome/pycryptodome-3.17
+pydantic==1.10.13
+pydevtool @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pydevtool/pydevtool-0.3.0
+pyfiglet==1.0.2
+Pygments @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/Pygments/Pygments-2.13.0
+PyJWT==2.8.0
+pylev @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pylev/pylev-1.4.0
+PyNaCl @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/PyNaCl/PyNaCl-1.5.0
+pyparsing @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pyparsing/pyparsing-3.0.9
+pyrsistent @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pyrsistent/pyrsistent-0.19.2
+PySocks==1.7.1
+pytesseract==0.3.10
+pytest @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pytest/pytest-7.2.0
+pytest-xdist @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pytestxdist/pytest-xdist-3.1.0
+python-dateutil @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pythondateutil/python-dateutil-2.8.2
+pytoml @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/pytoml/pytoml-0.1.21
+pytorch-lightning==1.9.5
+pytorch-metric-learning==1.7.3
+pytz==2023.3.post1
+PyWavelets==1.4.1
+PyYAML==6.0.1
+querystring-parser==1.2.4
+ray==2.3.1
+regex @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/regex/regex-2022.10.31
+requests==2.28.2
+requests-oauthlib==1.3.1
+requests-toolbelt @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/requeststoolbelt/requests-toolbelt-0.9.1
+responses==0.18.0
+rich==13.4.2
+rich-click @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/richclick/rich-click-1.6.0
+rsa==4.9
+s3transfer==0.7.0
+safetensors==0.4.0
+scandir @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/scandir/scandir-1.10.0
+scikit-image==0.19.3
+scikit-learn==1.2.2
+scikit-optimize==0.9.0
+scipy==1.11.3
+SecretStorage @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/SecretStorage/SecretStorage-3.3.3
+semantic-version @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/semantic_version/semantic_version-2.10.0
+sentencepiece==0.1.99
+seqeval==1.2.2
+setuptools-rust @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/setuptoolsrust/setuptools-rust-1.5.2
+setuptools-scm @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/setuptools_scm/setuptools_scm-7.0.5
+shellingham @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/shellingham/shellingham-1.5.0
+simplegeneric @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/simplegeneric/simplegeneric-0.8.1
+simplejson @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/simplejson/simplejson-3.17.6
+six @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/six/six-1.16.0
+smart-open==6.4.0
+smmap==5.0.1
+snowballstemmer @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/snowballstemmer/snowballstemmer-2.2.0
+sortedcontainers @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sortedcontainers/sortedcontainers-2.4.0
+soupsieve==2.5
+spacy==3.7.2
+spacy-legacy==3.0.12
+spacy-loggers==1.0.5
+Sphinx @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/Sphinx/Sphinx-5.3.0
+sphinx-bootstrap-theme @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxbootstraptheme/sphinx-bootstrap-theme-0.8.1
+sphinxcontrib-applehelp @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxcontribapplehelp/sphinxcontrib-applehelp-1.0.2
+sphinxcontrib-devhelp @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxcontribdevhelp/sphinxcontrib-devhelp-1.0.2
+sphinxcontrib-htmlhelp @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxcontribhtmlhelp/sphinxcontrib-htmlhelp-2.0.0
+sphinxcontrib-jsmath @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxcontribjsmath/sphinxcontrib-jsmath-1.0.1
+sphinxcontrib-qthelp @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxcontribqthelp/sphinxcontrib-qthelp-1.0.3
+sphinxcontrib-serializinghtml @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxcontribserializinghtml/sphinxcontrib-serializinghtml-1.1.5
+sphinxcontrib-websupport @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/sphinxcontribwebsupport/sphinxcontrib-websupport-1.2.4
+SQLAlchemy==2.0.22
+sqlparse==0.4.4
+srsly==2.4.8
+statsforecast==1.4.0
+statsmodels==0.14.0
+stopit==1.1.2
+tabulate @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/tabulate/tabulate-0.9.0
+tenacity==8.2.3
+tensorboard==2.15.1
+tensorboard-data-server==0.7.2
+tensorboardX==2.6.2.2
+text-unidecode==1.3
+thinc==8.2.1
+threadpoolctl @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/threadpoolctl/threadpoolctl-3.1.0
+tifffile==2023.9.26
+timm==0.9.10
+tokenizers==0.13.3
+toml @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/toml/toml-0.10.2
+tomli @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/tomli/tomli-2.0.1
+tomli_w @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/tomli_w/tomli_w-1.0.0
+tomlkit @ file:///cluster/apps/eb/sources/p/Python/extensions/tomlkit-0.11.6-py3-none-any.whl
+toolz==0.12.0
+torch==1.13.1
+torchmetrics==0.11.4
+torchvision==0.14.1
+TPOT==0.12.1
+tqdm==4.65.2
+transformers==4.26.1
+typer==0.9.0
+typing_extensions @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/typing_extensions/typing_extensions-4.4.0
+tzdata==2023.3
+ujson @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/ujson/ujson-5.5.0
+update-checker==0.18.0
+urllib3 @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/urllib3/urllib3-1.26.12
+virtualenv @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/virtualenv/virtualenv-20.16.6
+wasabi==1.1.2
+wcwidth @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/wcwidth/wcwidth-0.2.5
+weasel==0.3.3
+webencodings @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/webencodings/webencodings-0.5.1
+websocket-client==1.6.4
+Werkzeug==3.0.0
+window-ops==0.0.14
+xgboost==1.7.6
+xlrd @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/xlrd/xlrd-2.0.1
+xxhash==3.4.1
+yarl==1.9.2
+zipfile36 @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/zipfile36/zipfile36-0.1.3
+zipp @ file:///tmp/eb_hrn/Python/3.10.8/GCCcore-12.2.0/zipp/zipp-3.10.0
