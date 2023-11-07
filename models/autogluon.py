@@ -17,20 +17,6 @@ def autogluon(model_name = 'autogluon-with-more-feature-eng'):
 
     X_test_a, X_test_b, X_test_c = get_test_data(mean=True)
 
-    drop_cols_lst = ['time']
-    
-    data_process_pipeline = Pipeline([
-        ('drop_cols', ColumnDropper(drop_cols=drop_cols_lst)),
-    ])
-    
-    # Apply the pipeline to each dataset
-    data_a = data_process_pipeline.fit_transform(data_a)
-    data_b = data_process_pipeline.fit_transform(data_b)
-    data_c = data_process_pipeline.fit_transform(data_c)
-    X_test_a = data_process_pipeline.transform(X_test_a)
-    X_test_b = data_process_pipeline.transform(X_test_b)
-    X_test_c = data_process_pipeline.transform(X_test_c)
-
     # Specify the column name that contains the target variable to predict
     label = 'pv_measurement'
 
