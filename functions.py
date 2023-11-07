@@ -152,6 +152,15 @@ def get_test_data():
     X_test_estimated_b = pd.read_parquet('data/B/X_test_estimated.parquet').rename(columns={'date_forecast': 'time'})
     X_test_estimated_c = pd.read_parquet('data/C/X_test_estimated.parquet').rename(columns={'date_forecast': 'time'})
 
+    # --- get hourly and rename ---
+    X_test_estimated_a = get_hourly(X_test_estimated_a)
+    X_test_estimated_b = get_hourly(X_test_estimated_b)
+    X_test_estimated_c = get_hourly(X_test_estimated_c)
+
+    X_test_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_test_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_test_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
+
     # --- load kaggle submission data ---
     test = pd.read_csv('data/test.csv')
     test["time"] = pd.to_datetime(test["time"]) # convert "time" to datetime format to facilitate merge
