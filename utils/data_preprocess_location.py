@@ -51,13 +51,23 @@ def load_data(mean=False):
     X_train_estimated_c = pd.read_parquet('data/C/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
 
     # --- get features for each hour before concatinating ---
-    X_train_observed_a = get_hourly(X_train_observed_a)
-    X_train_observed_b = get_hourly(X_train_observed_b)
-    X_train_observed_c = get_hourly(X_train_observed_c)
+    if mean:
+        X_train_observed_a = get_hourly_mean(X_train_observed_a)
+        X_train_observed_b = get_hourly_mean(X_train_observed_b)
+        X_train_observed_c = get_hourly_mean(X_train_observed_c)
 
-    X_train_estimated_a = get_hourly(X_train_estimated_a)
-    X_train_estimated_b = get_hourly(X_train_estimated_b)
-    X_train_estimated_c = get_hourly(X_train_estimated_c)
+        X_train_estimated_a = get_hourly_mean(X_train_estimated_a)
+        X_train_estimated_b = get_hourly_mean(X_train_estimated_b)
+        X_train_estimated_c = get_hourly_mean(X_train_estimated_c)
+
+    else:
+        X_train_observed_a = get_hourly(X_train_observed_a)
+        X_train_observed_b = get_hourly(X_train_observed_b)
+        X_train_observed_c = get_hourly(X_train_observed_c)
+
+        X_train_estimated_a = get_hourly(X_train_estimated_a)
+        X_train_estimated_b = get_hourly(X_train_estimated_b)
+        X_train_estimated_c = get_hourly(X_train_estimated_c)
 
     X_train_observed_a.rename(columns={"time_hour": "time"}, inplace=True)
     X_train_observed_b.rename(columns={"time_hour": "time"}, inplace=True)
@@ -83,11 +93,6 @@ def load_data(mean=False):
     data_a = data_a.dropna(subset=['pv_measurement'])
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
-
-    if mean: 
-        data_a = calculate_means_and_replace(data_a)
-        data_b = calculate_means_and_replace(data_b)
-        data_c = calculate_means_and_replace(data_c)
 
     return data_a, data_b, data_c
 
@@ -132,6 +137,17 @@ def get_hourly(df):
 
     return merged_df
 
+def get_hourly_mean(df):
+    """Returns a dataframe in which """
+    
+    # get a column for the start hour
+    df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
+    
+    # get the mean value for the entire hour
+    mean_df = df.groupby('time_hour').agg('mean').reset_index()
+
+    return mean_df
+
 
 def get_train_targets(data):
     """Sepperate out features from the training data"""
@@ -160,9 +176,14 @@ def get_test_data(mean=False):
     X_test_estimated_c = pd.read_parquet('data/C/X_test_estimated.parquet').rename(columns={'date_forecast': 'time'})
 
     # --- get hourly and rename ---
-    X_test_estimated_a = get_hourly(X_test_estimated_a)
-    X_test_estimated_b = get_hourly(X_test_estimated_b)
-    X_test_estimated_c = get_hourly(X_test_estimated_c)
+    if mean:
+        X_test_estimated_a = get_hourly_mean(X_test_estimated_a)
+        X_test_estimated_b = get_hourly_mean(X_test_estimated_b)
+        X_test_estimated_c = get_hourly_mean(X_test_estimated_c)
+    else:
+        X_test_estimated_a = get_hourly(X_test_estimated_a)
+        X_test_estimated_b = get_hourly(X_test_estimated_b)
+        X_test_estimated_c = get_hourly(X_test_estimated_c)
 
     X_test_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
     X_test_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
@@ -180,37 +201,7 @@ def get_test_data(mean=False):
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
-    if mean: 
-        X_test_a = calculate_means_and_replace(X_test_a)
-        X_test_a = calculate_means_and_replace(X_test_a)
-        X_test_a = calculate_means_and_replace(X_test_a)
-
     return X_test_a, X_test_b, X_test_c
-
-
-def calculate_means_and_replace(df):
-    """
-    Calculate the mean for columns in the DataFrame that match a certain pattern and replace them with a single mean column.
-
-    Parameters:
-    df (pd.DataFrame): The DataFrame to process.
-    suffix (str): The suffix pattern that identifies the columns for which to calculate the mean.
-
-    Returns:
-    pd.DataFrame: The DataFrame with the original columns replaced by their mean.
-    """
-    # Get the base patterns by stripping the trailing '_<number>'
-    base_patterns = set(col.rsplit('_', 1)[0] for col in df.columns if '_' in col)
-
-    # For each base pattern, calculate the mean and replace the columns
-    for base_pattern in base_patterns:
-        # Find all columns that start with the base pattern and end with a number
-        pattern_columns = [col for col in df.columns if col.startswith(base_pattern) and col.split('_')[-1].isdigit()]
-        # Calculate the mean of these columns
-        df[base_pattern + '_mean'] = df[pattern_columns].mean(axis=1)
-        # Drop the original columns
-        df.drop(pattern_columns, axis=1, inplace=True)
-    return df
 
 def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name):
     """Parses the test data and predictions into a single df in kaggle submission format"""
