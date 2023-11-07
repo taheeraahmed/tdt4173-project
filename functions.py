@@ -188,7 +188,7 @@ def get_train_targets(data):
     return X_train, targets
 
 
-def get_test_data(mean=False):
+def get_test_data(mean=False, roll_avg=False):
     """Parse the test data, getting the data that has a kaggle submission id for all locations"""
 
     # --- Check if files exist ---
@@ -236,6 +236,11 @@ def get_test_data(mean=False):
     X_test_a = pd.merge(X_test_estimated_a, kaggle_submission_a, on="time", how="right")
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
+
+    if roll_avg:
+        X_test_a = rolling_average(X_test_a)
+        X_test_b = rolling_average(X_test_b)
+        X_test_c = rolling_average(X_test_c)
 
     return X_test_a, X_test_b, X_test_c
 
