@@ -20,10 +20,7 @@ def stacked_catboost(model_name='stacked-catboost'):
 
     X_test_a, X_test_b, X_test_c = get_test_data()
 
-    drop_cols = ['time', 'date_calc', 'elevation:m', 'fresh_snow_1h:cm',  
-             'wind_speed_u_10m:ms', 'wind_speed_v_10m:ms', 'wind_speed_w_1000hPa:ms', 'prob_rime:p',
-             'fresh_snow_12h:cm','fresh_snow_24h:cm', 'fresh_snow_6h:cm', 'super_cooled_liquid_water:kgm2']
-
+    drop_cols = ['time', 'date_calc']
 
     data_process_pipeline = Pipeline([
         ('add_month', FeatureAdder()),
