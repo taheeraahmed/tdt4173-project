@@ -12,55 +12,107 @@ import catboost as cb
 def stacked_catboost(model_name='stacked-catboost'):
     logger = logging.getLogger()
     logger.info('Processing data')
-    data_a, data_b, data_c = load_data()
+    data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True)
+    X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True)
 
+    # Assuming get_train_targets is defined and returns the features and target
     X_train_a, y_a = get_train_targets(data_a)
     X_train_b, y_b = get_train_targets(data_b)
     X_train_c, y_c = get_train_targets(data_c)
 
-    X_test_a, X_test_b, X_test_c = get_test_data()
-
     drop_cols = ['time', 'date_calc']
 
+    # Define the data processing pipeline (common for all locations)
     data_process_pipeline = Pipeline([
-        ('add_month', FeatureAdder()),
+        # ('add_month', FeatureAdder()), in read data:)
         ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='mean', fill_value=0)),
     ])
     
     run_name = generate_run_name()
-
     logger.info(f'Model name: {model_name}')
 
-    # Define base models
-    base_models = [
-        ('cat_boost1', cb.CatBoostRegressor(random_state=42, silent=True)),
-        ('cat_boost2', cb.CatBoostRegressor(random_state=42, silent=True)),
-        ('cat_boost3', cb.CatBoostRegressor(random_state=42, silent=True)),
-        ('cat_boost4', cb.CatBoostRegressor(random_state=42, silent=True))
+    # Define base models with the best parameters found for each location
+
+    """
+    cat_boost1: bayesian_search on params given feat_eng from 07.nov
+    
+    """
+    base_models_a = [
+        ('cat_boost1', cb.CatBoostRegressor(
+            bootstrap_type='Bayesian',
+            border_count=255,
+            depth=7,
+            grow_policy='SymmetricTree',
+            iterations=300,
+            l2_leaf_reg=5.000000000000001,
+            learning_rate=0.09957010602734577,
+            min_data_in_leaf=1,
+            random_strength=1e-09,
+            silent=True
+        )),
+        # ... Add more models if you're using an ensemble of multiple CatBoost models
     ]
 
-    # Define meta-learner
-    meta_learner = LinearRegression()
+    base_models_b = [
+        ('cat_boost1', cb.CatBoostRegressor(
+            bootstrap_type='MVS',
+            border_count=200,
+            depth=7,
+            grow_policy='SymmetricTree',
+            iterations=153,
+            l2_leaf_reg=5.677917242722324,
+            learning_rate=0.05426238595755628,
+            min_data_in_leaf=3,
+            random_strength=3.701054654379414e-07,
+            silent=True
+        )),
+        # ... Add more models if needed
+    ]
 
-    # Create the stacking regressor
-    stacked_model = StackingRegressor(estimators=base_models, final_estimator=meta_learner)
+    base_models_c = [
+        ('cat_boost1', cb.CatBoostRegressor(
+            bootstrap_type='Bernoulli',
+            border_count=242,
+            depth=5,
+            grow_policy='Lossguide',
+            iterations=290,
+            l2_leaf_reg=8.850908338670033,
+            learning_rate=0.02839226005231253,
+            min_data_in_leaf=8,
+            random_strength=0.2656511459585781,
+            silent=True
+        )),
+        # ... Add more models if needed
+    ]
 
-    whole_model_pipeline = Pipeline([
-        ('data_process', data_process_pipeline),
-        ('stacked_model', stacked_model)
-    ])
+    # Define meta-learners for each location
+    meta_learner_a = LinearRegression()
+    meta_learner_b = LinearRegression()
+    meta_learner_c = LinearRegression() 
 
-    logger.info("training location A model")
-    whole_model_pipeline.fit(X_train_a, y_a)
-    pred_a = whole_model_pipeline.predict(X_test_a.drop(columns=["id", "prediction", "location"]))
+    # Create a dictionary to store predictions
+    predictions = {}
 
-    logger.info("training location B model")
-    whole_model_pipeline.fit(X_train_b, y_b)
-    pred_b = whole_model_pipeline.predict(X_test_b.drop(columns=["id", "prediction", "location"]))
+    # Loop through each location
+    for loc, X_train, y, base_models, meta_learner in [
+        ('A', X_train_a, y_a, base_models_a, meta_learner_a),
+        ('B', X_train_b, y_b, base_models_b, meta_learner_b),
+        ('C', X_train_c, y_c, base_models_c, meta_learner_c)
+    ]:
+        # Create the stacking regressor for the current location
+        stacked_model = StackingRegressor(estimators=base_models, final_estimator=meta_learner)
 
-    logger.info("training location C model")
-    whole_model_pipeline.fit(X_train_c, y_c)
-    pred_c = whole_model_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
+        # Create the whole model pipeline for the current location
+        whole_model_pipeline = Pipeline([
+            ('data_process', data_process_pipeline),
+            ('stacked_model', stacked_model)
+        ])
 
-    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name=run_name)
+        logger.info(f"training location {loc} model")
+        whole_model_pipeline.fit(X_train, y)
+        X_test = locals()[f'X_test_{loc}'].drop(columns=["id", "prediction", "location"])
+        predictions[loc] = whole_model_pipeline.predict(X_test)
+
+    # Prepare submission using the predictions
+    prepare_submission(X_test_a, X_test_b, X_test_c, predictions['A'], predictions['B'], predictions['C'], run_name=run_name)
