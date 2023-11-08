@@ -10,7 +10,7 @@ def autogluon(model_name = 'autogluon-with-more-feature-eng'):
     run_name = generate_run_name()
 
     logger.info('Processing data')
-
+    
     drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3',
             'wind_speed_w_1000hPa:ms', 'snow_drift:idx', 'fresh_snow_3h:cm', 'is_in_shadow:idx', 'dew_or_rime:idx', 'fresh_snow_6h:cm', 'prob_rime:p', 'fresh_snow_1h:cm'] # this second line is columns with feature importance == 0
 

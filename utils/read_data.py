@@ -13,6 +13,9 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
+    logger = logging.getLogger(
+
+    )
     file_paths = [
         'data/A/train_targets.parquet',
         'data/B/train_targets.parquet',
@@ -67,6 +70,7 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     X_train_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
     X_train_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
 
+    logger.info('Setting estimated flag')
     X_train_observed_a["estimated_flag"] = 0
     X_train_observed_b["estimated_flag"] = 0
     X_train_observed_c["estimated_flag"] = 0
@@ -93,16 +97,19 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     data_c = data_c.dropna(subset=['pv_measurement'])
 
     if remove_out:
+        logger.info('Removing outliers')
         data_a = remove_outliers(data_a)
         data_b = remove_outliers(data_b)
         data_c = remove_outliers(data_c)
 
     if cust_feat:
+        logger.info('Adding custom features')
         data_a = add_custom_features(data_a)
         data_b = add_custom_features(data_b)
         data_c = add_custom_features(data_c)
 
     if roll_avg:
+        logger.info('Adding rolling averages')
         data_a = rolling_average(data_a)
         data_b = rolling_average(data_b)
         data_c = rolling_average(data_c)
@@ -110,6 +117,7 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     if (drop_cols == []):
         pass
     else:
+        logger.info('Drop cols: ', drop_cols)
         data_a.drop(columns=drop_cols, errors='ignore', inplace=True)
         data_b.drop(columns=drop_cols, errors='ignore', inplace=True)
         data_c.drop(columns=drop_cols, errors='ignore', inplace=True)
@@ -231,6 +239,7 @@ def get_test_data(mean=False, roll_avg=False, cust_feat=False):
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
     if roll_avg:
+        
         X_test_a = rolling_average(X_test_a)
         X_test_b = rolling_average(X_test_b)
         X_test_c = rolling_average(X_test_c)

@@ -1,5 +1,6 @@
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+autogluon/
 
 # Virtual environment (if you're using one)
 venv/
