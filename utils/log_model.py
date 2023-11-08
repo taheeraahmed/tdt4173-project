@@ -44,4 +44,5 @@ def write_to_file(logged_data):
         best_params = logged_data.get('best_params')
         if best_params:
             file.write('Best params \n')
-            file.write(str(best_params) + '\n')
+            for best_param in best_params:
+                file.write(str(best_param) + '\n')
