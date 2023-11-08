@@ -9,7 +9,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, ):
+def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
