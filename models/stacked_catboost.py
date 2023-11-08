@@ -1,5 +1,5 @@
 from utils.data_pipeline import ColumnDropper, FeatureAdder
-from utils.data_preprocess_location import get_train_targets, load_data, get_test_data, prepare_submission
+from utils.read_data import get_train_targets, load_data, get_test_data, prepare_submission
 from utils.generate_run_name import generate_run_name
 import numpy as np
 import logging

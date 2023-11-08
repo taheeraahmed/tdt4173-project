@@ -1,7 +1,7 @@
 from autogluon.tabular import TabularPredictor
 import logging 
 from utils.generate_run_name import generate_run_name
-from utils.data_preprocess_location import load_data, get_test_data, prepare_submission
+from utils.read_data import load_data, get_test_data, prepare_submission
 from utils.data_pipeline import ColumnDropper, FeatureAdder
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer

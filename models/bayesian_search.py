@@ -5,7 +5,7 @@ from catboost import CatBoostRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 
-from utils.data_preprocess_location import get_test_data, get_train_targets, load_data, prepare_submission
+from utils.read_data import get_test_data, get_train_targets, load_data, prepare_submission
 from utils.data_pipeline import ColumnDropper, FeatureAdder
 from utils.generate_run_name import generate_run_name
 
