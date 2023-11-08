@@ -1,6 +1,6 @@
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.impute import SimpleImputer
+import pandas as pd
 
 """
 Use this: 

@@ -92,37 +92,7 @@ def load_data(mean=False, roll_avg=False, remove_out=False):
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
 
-    # add columnns for rolling average
-    if roll_avg:
-        data_a = rolling_average(data_a)
-        data_b = rolling_average(data_b)
-        data_c = rolling_average(data_c)
-
-    if remove_out:
-        data_a = remove_ouliers(data_a)
-        data_b = remove_ouliers(data_b)
-        data_c = remove_ouliers(data_c)
-
     return data_a, data_b, data_c
-
-
-def remove_ouliers(data):
-    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
-
-    threshold = 0.01
-    window_size = 24 
-
-    # Calculate standard deviation for each window
-    std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
-
-    # Identify constant stretches and create a mask to filter out these points
-    constant_mask = std_dev < threshold
-
-    # Filter out constant stretches from the data
-    filtered_data = data[~constant_mask]
-
-    return filtered_data
-
 
 def get_hourly(df):
     
@@ -156,26 +126,6 @@ def get_hourly_mean(df):
     mean_df = df.groupby('time_hour').agg('mean').reset_index()
 
     return mean_df
-
-def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
-    
-    #hard-code new features #TODO: add as param accessible outside of functions.py
-    features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'snow_water:kgm2', 'visibility:m']
-    
-    # Ensure the 'time' column is datetime and set as index
-    df['time'] = pd.to_datetime(df['time'])
-    df.set_index('time', inplace=True, drop=False)
-    df.sort_index(inplace=True)
-
-    # Calculate rolling averages for the specified features
-    for feature in features:
-        rolling_feature_name = f"{feature}_rolling_avg_{window_size}"
-        df[rolling_feature_name] = df[feature].rolling(window=window_size).mean()
-
-    # Handle missing data if necessary
-    df.fillna(method='bfill', inplace=True)  # Forward fill
-
-    return df
 
 
 def get_train_targets(data):
@@ -233,11 +183,6 @@ def get_test_data(mean=False, roll_avg=False):
     X_test_a = pd.merge(X_test_estimated_a, kaggle_submission_a, on="time", how="right")
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
-
-    if roll_avg:
-        X_test_a = rolling_average(X_test_a)
-        X_test_b = rolling_average(X_test_b)
-        X_test_c = rolling_average(X_test_c)
 
     return X_test_a, X_test_b, X_test_c
 
