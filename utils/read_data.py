@@ -9,7 +9,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False, roll_avg=False, remove_out=False):
+def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, ):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -92,7 +92,32 @@ def load_data(mean=False, roll_avg=False, remove_out=False):
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
 
+    if remove_out:
+        data_a = remove_outliers(data_a)
+        data_b = remove_outliers(data_b)
+        data_c = remove_outliers(data_c)
+
+    if cust_feat:
+        data_a = add_custom_features(data_a)
+        data_b = add_custom_features(data_b)
+        data_c = add_custom_features(data_c)
+
+    if roll_avg:
+        data_a = rolling_average(data_a)
+        data_b = rolling_average(data_b)
+        data_c = rolling_average(data_c)
+        
     return data_a, data_b, data_c
+
+def add_custom_features(df):
+    df['month'] = df['time'].apply(lambda x: x.month)
+    df['hour'] = df['time'].apply(lambda x: x.hour)
+    df["sun_rad_2"] = (df['sun_elevation:d'] * df['direct_rad:W']) / 1000000
+    df["sun_wind_2"] = (df['wind_speed_10m:ms'] * df['diffuse_rad:W']) / 1000
+    df["temp_sun"] = (df['t_1000hPa:K'] * df['sun_azimuth:d']) / 1000
+    df["rad_day_1"] = (df['is_day:idx'] * df['diffuse_rad:W']) / 1000
+    df['mult_coulds'] = (df['clear_sky_rad:W'] * df['cloud_base_agl:m']) / 100000
+    return df
 
 def get_hourly(df):
     
@@ -118,14 +143,23 @@ def get_hourly(df):
 
 def get_hourly_mean(df):
     """Returns a dataframe in which """
-    
     # get a column for the start hour
     df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
-    
     # get the mean value for the entire hour
     mean_df = df.groupby('time_hour').agg('mean').reset_index()
-
     return mean_df
+
+def remove_outliers(data):
+    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
+    threshold = 0.01
+    window_size = 24 
+    # Calculate standard deviation for each window
+    std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
+    # Identify constant stretches and create a mask to filter out these points
+    constant_mask = std_dev < threshold
+    # Filter out constant stretches from the data
+    filtered_data = data[~constant_mask]
+    return filtered_data
 
 
 def get_train_targets(data):
@@ -135,7 +169,7 @@ def get_train_targets(data):
     return X_train, targets
 
 
-def get_test_data(mean=False, roll_avg=False):
+def get_test_data(mean=False, roll_avg=False, cust_feat=False):
     """Parse the test data, getting the data that has a kaggle submission id for all locations"""
 
     # --- Check if files exist ---
@@ -184,6 +218,16 @@ def get_test_data(mean=False, roll_avg=False):
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
+    if roll_avg:
+        X_test_a = rolling_average(X_test_a)
+        X_test_b = rolling_average(X_test_b)
+        X_test_c = rolling_average(X_test_c)
+
+    if cust_feat:
+        X_test_a = add_custom_features(X_test_a)
+        X_test_b = add_custom_features(X_test_b)
+        X_test_c = add_custom_features(X_test_c)
+
     return X_test_a, X_test_b, X_test_c
 
 def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name):
@@ -220,3 +264,19 @@ def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run
     # Save the submission CSV in the specified directory
     submission.to_csv(os.path.join(submission_directory, submission_filename), index=False)
     logger.info("Saved submission file " + formatted_datetime + "-" + run_name + '.csv' )
+
+
+def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
+    # Ensure the 'time' column is datetime and set as index
+    df['time'] = pd.to_datetime(df['time'])
+    df.set_index('time', inplace=True, drop=False)
+    df.sort_index(inplace=True)
+
+    # Calculate rolling averages for the specified features
+    for feature in features:
+        rolling_feature_name = f"{feature}_rolling_avg_{window_size}"
+        df[rolling_feature_name] = df[feature].rolling(window=window_size).mean()
+
+    # Handle missing data if necessary
+    df.fillna(method='bfill', inplace=True)  # Forward fill
+    return df
