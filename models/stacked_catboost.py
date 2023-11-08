@@ -10,23 +10,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from autogluon.tabular import TabularPredictor
 import logging
+import pandas as pd
 
-class AutoGluonTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, model_path):
-        self.model_path = model_path
-        self.model = TabularPredictor.load(self.model_path)
-
-    def fit(self, X, y=None):
-        # AutoGluon models are pre-trained, so `fit` doesn't need to do anything
-        return self
-
-    def transform(self, X):
-        # Use the AutoGluon model to make predictions and return them
-        predictions = self.model.predict(X, as_pandas=True)
-        return np.atleast_2d(predictions).T  # Ensure the output is 2D
-
-
-def stacked_catboost(model_name='stacked-catboost'):
+def stacked_catboost(model_name='stacked-catboost-with-autogluon-model-hacked'):
     logger = logging.getLogger()
     logger.info('Processing data')
     drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3', 
@@ -39,13 +25,31 @@ def stacked_catboost(model_name='stacked-catboost'):
     X_train_a, y_a = get_train_targets(data_a)
     X_train_b, y_b = get_train_targets(data_b)
     X_train_c, y_c = get_train_targets(data_c)
-
-    drop_cols = ['time', 'date_calc']
     
     run_name = generate_run_name()
     logger.info(f'Model name: {model_name}')
 
-    # Define base models with the best parameters found for each location
+    # Adding autogluion
+    autogluon_model_a = TabularPredictor.load("/cluster/home/taheeraa/code/tdt4173-project/autogluon/Jert Mira-A")
+    autogluon_model_b = TabularPredictor.load("/cluster/home/taheeraa/code/tdt4173-project/autogluon/Jert Mira-B")
+    autogluon_model_c = TabularPredictor.load("/cluster/home/taheeraa/code/tdt4173-project/autogluon/Jert Mira-C")
+
+    autogluon_predictions_a = autogluon_model_a.predict(X_train_a)
+    autogluon_predictions_b = autogluon_model_b.predict(X_train_b)
+    autogluon_predictions_c = autogluon_model_c.predict(X_train_c)
+    autogluon_predictions_test_a = autogluon_model_a.predict(X_test_a)
+    autogluon_predictions_test_b = autogluon_model_b.predict(X_test_b)
+    autogluon_predictions_test_c = autogluon_model_c.predict(X_test_c)
+
+    X_test_a = pd.concat([X_test_a, autogluon_predictions_test_a], axis=1)
+    X_test_b = pd.concat([X_test_b, autogluon_predictions_test_b], axis=1)
+    X_test_c = pd.concat([X_test_c, autogluon_predictions_test_c], axis=1)
+    X_train_a = pd.concat([X_train_a, autogluon_predictions_a], axis=1)
+    X_train_b = pd.concat([X_train_b, autogluon_predictions_b], axis=1)
+    X_train_c = pd.concat([X_train_c, autogluon_predictions_c], axis=1)
+
+
+    logger.info('Done preprocessing data')
 
     """
     cat_boost1: bayesian_search on params given feat_eng from 07.nov
