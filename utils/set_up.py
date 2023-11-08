@@ -15,12 +15,13 @@ def set_up():
         ("ignore", FutureWarning, "mlflow.data.digest_utils"),
         ("ignore", FutureWarning, "sklearn.preprocessing._encoders"),
         ("ignore", UserWarning, "optional dependency `torch` is not available"),
-        ("ignore", FutureWarning, "The default value of numeric_only in DataFrameGroupBy.mean is deprecated"),
     ]
 
     for action, category, module in WARNINGS_TO_SUPPRESS:
         warnings.filterwarnings(action, category=category, module=module)
+
     warnings.filterwarnings("ignore", category=UserWarning)
+    warnings.filterwarnings("ignore", category=FutureWarning)
     
     logging.basicConfig(level=logging.INFO, 
                     format='[%(levelname)s] %(asctime)s - %(message)s',
