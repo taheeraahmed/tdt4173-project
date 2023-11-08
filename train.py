@@ -1,5 +1,5 @@
-from models.bayesian_search import bayes_search_catboost_stacked
 from models.autogluon import autogluon
+from models.bayesian_search import bayes_search_catboost
 import logging
 from utils.set_up import set_up
 
@@ -8,7 +8,7 @@ def main():
     logger = logging.getLogger()
     logger.info('The training is beginning')
     
-    autogluon()
+    bayes_search_catboost()
 
 
 if __name__ == "__main__":
