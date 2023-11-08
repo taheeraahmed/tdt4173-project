@@ -28,8 +28,7 @@ def bayes_search_catboost(model_name="bayes-search-catboost"):
     # Get test data
     X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True)
 
-    drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3', 
-             'wind_speed_w_1000hPa:ms', 'snow_drift:idx', 'fresh_snow_3h:cm', 'is_in_shadow:idx', 'dew_or_rime:idx', 'fresh_snow_6h:cm', 'prob_rime:p'] # this second line is columns with feature importance == 0
+    drop_cols = ['time', 'elevation:m'] # this second line is columns with feature importance == 0
 
      # Define the data processing pipeline
     data_process_pipeline = Pipeline([
