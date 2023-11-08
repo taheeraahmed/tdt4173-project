@@ -2,6 +2,16 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
 
+"""
+Use this: 
+
+data_process_pipeline = Pipeline([
+    ('add_features', FeatureAdder()),
+    ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
+    ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
+])
+"""
+
 class FeatureAdder(BaseEstimator, TransformerMixin):
     """Adds features."""
 
@@ -74,9 +84,3 @@ class ColumnDropper(BaseEstimator, TransformerMixin):
     def transform(self, X):
         X_copy = X.copy()
         return X_copy.drop(columns=self.drop_cols)
-
-data_process_pipeline = Pipeline([
-    ('add_features', FeatureAdder()),
-    ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
-    ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
-])
