@@ -14,7 +14,8 @@ def set_up():
         ("ignore", UserWarning, "_distutils_hack"),
         ("ignore", FutureWarning, "mlflow.data.digest_utils"),
         ("ignore", FutureWarning, "sklearn.preprocessing._encoders"),
-        ("ignore", UserWarning, "optional dependency `torch` is not available")
+        ("ignore", UserWarning, "optional dependency `torch` is not available"),
+        ("ignore", FutureWarning, "The default value of numeric_only in DataFrameGroupBy.mean is deprecated"),
     ]
 
     for action, category, module in WARNINGS_TO_SUPPRESS:
