@@ -1,12 +1,3 @@
-"""
-Helper functions for:
-- loading data
-- parsing submission
-- ...
-
-NOTE: all functions file should be pasted into the long notebook before submission.
-"""
-
 import pandas as pd
 import numpy as np
 import os
@@ -167,12 +158,14 @@ def get_hourly_mean(df):
     return mean_df
 
 def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
+    
+    #hard-code new features #TODO: add as param accessible outside of functions.py
+    features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'snow_water:kgm2', 'visibility:m']
+    
     # Ensure the 'time' column is datetime and set as index
     df['time'] = pd.to_datetime(df['time'])
-    df.set_index('time', inplace=True)
+    df.set_index('time', inplace=True, drop=False)
     df.sort_index(inplace=True)
-
-    features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'snow_water:kgm2', 'visibility:m']
 
     # Calculate rolling averages for the specified features
     for feature in features:
@@ -241,7 +234,6 @@ def get_test_data(mean=False, roll_avg=False):
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
-    # add columnns for rolling average
     if roll_avg:
         X_test_a = rolling_average(X_test_a)
         X_test_b = rolling_average(X_test_b)
