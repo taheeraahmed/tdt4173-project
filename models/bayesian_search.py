@@ -18,26 +18,28 @@ def bayes_search_catboost(model_name="bayes-search-catboost"):
     logger = logging.getLogger()
 
     logger.info('Processing data')
+
+    drop_cols = ['time', 'elevation:m'] # this second line is columns with feature importance == 0
     
-    data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True)
+    data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols)
 
     X_train_a, y_train_a = get_train_targets(data_a)
     X_train_b, y_train_b = get_train_targets(data_b)
     X_train_c, y_train_c = get_train_targets(data_c)
 
     # Get test data
-    X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True)
+    X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols)
 
-    drop_cols = ['time', 'elevation:m'] # this second line is columns with feature importance == 0
+
+    logger.info('Done processing data')
+
 
      # Define the data processing pipeline
     data_process_pipeline = Pipeline([
-        ('add_features', FeatureAdder()),
         ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
     ])
 
-    logger.info('Done processing data')
 
     locA_pipeline = Pipeline([
         ('data_process', data_process_pipeline),

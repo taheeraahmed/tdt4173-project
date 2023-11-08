@@ -13,9 +13,8 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
-    logger = logging.getLogger(
-
-    )
+    logger = logging.getLogger()
+    
     file_paths = [
         'data/A/train_targets.parquet',
         'data/B/train_targets.parquet',
@@ -117,7 +116,7 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     if (drop_cols == []):
         pass
     else:
-        logger.info('Drop cols: ', drop_cols)
+        #logger.info('Drop cols: ', drop_cols)
         data_a.drop(columns=drop_cols, errors='ignore', inplace=True)
         data_b.drop(columns=drop_cols, errors='ignore', inplace=True)
         data_c.drop(columns=drop_cols, errors='ignore', inplace=True)
