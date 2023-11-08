@@ -9,7 +9,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False):
+def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, drop_cols=[]):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -106,18 +106,30 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False):
         data_a = rolling_average(data_a)
         data_b = rolling_average(data_b)
         data_c = rolling_average(data_c)
+
+    if (drop_cols == []):
+        pass
+    else:
+        data_a.drop(columns=drop_cols, errors='ignore', inplace=True)
+        data_b.drop(columns=drop_cols, errors='ignore', inplace=True)
+        data_c.drop(columns=drop_cols, errors='ignore', inplace=True)
+        
         
     return data_a, data_b, data_c
 
-def add_custom_features(df):
-    df['month'] = df['time'].apply(lambda x: x.month)
-    df['hour'] = df['time'].apply(lambda x: x.hour)
-    df["sun_rad_2"] = (df['sun_elevation:d'] * df['direct_rad:W']) / 1000000
-    df["sun_wind_2"] = (df['wind_speed_10m:ms'] * df['diffuse_rad:W']) / 1000
-    df["temp_sun"] = (df['t_1000hPa:K'] * df['sun_azimuth:d']) / 1000
-    df["rad_day_1"] = (df['is_day:idx'] * df['diffuse_rad:W']) / 1000
-    df['mult_coulds'] = (df['clear_sky_rad:W'] * df['cloud_base_agl:m']) / 100000
-    return df
+def add_custom_features(X_copy):
+    X_copy['month'] = X_copy['time'].apply(lambda x: x.month)
+    X_copy['hour'] = X_copy['time'].apply(lambda x: x.hour)
+    X_copy["sun_rad_2"] = (X_copy['sun_elevation:d'] * X_copy['direct_rad:W']) / 1000000
+    X_copy["sun_wind_2"] = (X_copy['wind_speed_10m:ms'] * X_copy['diffuse_rad:W']) / 1000
+    X_copy["temp_sun"] = (X_copy['t_1000hPa:K'] * X_copy['sun_azimuth:d'])/1000
+    X_copy["rad_day_1"] = (X_copy['is_day:idx'] * X_copy['diffuse_rad:W']) / 1000
+    X_copy['mult_coulds'] = (X_copy['clear_sky_rad:W'] * X_copy['cloud_base_agl:m']) / 100000
+    X_copy["dirrad_airdensity"] = (X_copy['direct_rad:W'] * X_copy['air_density_2m:kgm3'])/1000
+    X_copy["ratio_rad1"] = (X_copy['direct_rad:W'] / X_copy['diffuse_rad:W'])
+    X_copy["diffrad_airdensity"] = (X_copy['diffuse_rad:W'] * X_copy['air_density_2m:kgm3'])/1000
+
+    return X_copy
 
 def get_hourly(df):
     
@@ -271,7 +283,10 @@ def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_
     df['time'] = pd.to_datetime(df['time'])
     df.set_index('time', inplace=True, drop=False)
     df.sort_index(inplace=True)
-
+    
+    features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'snow_water:kgm2', 'visibility:m', # just this 7 nov
+                'clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d'] # added for 8 nov
+    
     # Calculate rolling averages for the specified features
     for feature in features:
         rolling_feature_name = f"{feature}_rolling_avg_{window_size}"
