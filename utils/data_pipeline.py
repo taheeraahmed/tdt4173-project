@@ -15,7 +15,7 @@ data_process_pipeline = Pipeline([
 class FeatureAdder(BaseEstimator, TransformerMixin):
     """Adds features."""
 
-    def __init__(self, drop_cols = []):
+    def __init__(self, drop_cols = [], is_test = False):
         self.drop_cols = drop_cols
 
     def fit(self, X, y=None):
@@ -23,9 +23,6 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_copy = X.copy()
-
-        # remove outliers
-        X_copy = self.remove_ouliers(X_copy)
 
         # add moth
         X_copy['month'] = X_copy['time'].apply(lambda x: x.month)
@@ -47,6 +44,10 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
     
     def rolling_average(self, df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
         # Ensure the 'time' column is datetime and set as index
+
+        features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'snow_water:kgm2', 'visibility:m', # just this 7 nov
+            'clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d'] # added for 8 nov
+        
         df['time'] = pd.to_datetime(df['time'])
         df.set_index('time', inplace=True, drop=False)
         df.sort_index(inplace=True)
@@ -59,18 +60,6 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
         # Handle missing data if necessary
         df.fillna(method='bfill', inplace=True)  # Forward fill
         return df
-    
-    def remove_ouliers(data):
-        """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
-        threshold = 0.01
-        window_size = 24 
-        # Calculate standard deviation for each window
-        std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
-        # Identify constant stretches and create a mask to filter out these points
-        constant_mask = std_dev < threshold
-        # Filter out constant stretches from the data
-        filtered_data = data[~constant_mask]
-        return filtered_data
 
 class ColumnDropper(BaseEstimator, TransformerMixin):
     """Drops columns from the data."""
