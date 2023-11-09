@@ -106,9 +106,9 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
 
     if remove_out:
         logger.info('Removing outliers')
-        data_a = remove_outliers(data_a)
-        data_b = remove_outliers(data_b)
-        data_c = remove_outliers(data_c)
+        data_a = remove_ouliers(data_a)
+        data_b = remove_ouliers(data_b, remove_b_outliers=True)
+        data_c = remove_ouliers(data_c)
 
     if roll_avg:
         logger.info('Adding rolling averages')
@@ -177,18 +177,30 @@ def get_hourly_mean(df):
     mean_df = df.groupby('time_hour').agg('mean').reset_index()
     return mean_df
 
-def remove_outliers(data):
+def remove_ouliers(data, remove_b_outliers = False):
     """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
+
     threshold = 0.01
-    window_size = 24 
+    window_size = 24
+
     # Calculate standard deviation for each window
     std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
+
     # Identify constant stretches and create a mask to filter out these points
     constant_mask = std_dev < threshold
+
     # Filter out constant stretches from the data
     filtered_data = data[~constant_mask]
-    return filtered_data
 
+    if remove_b_outliers:
+        "removing some extra outliers"
+        # Remove rows where pv_measurement > 100 and diffuse_rad:W < 30
+        filtered_data = filtered_data[~((filtered_data["pv_measurement"] > 100) & (filtered_data["diffuse_rad:W"] < 30))]
+
+        # Remove rows where pv_measurement > 200 and diffuse_rad:W < 40
+        filtered_data = filtered_data[~((filtered_data["pv_measurement"] > 200) & (filtered_data["diffuse_rad:W"] < 40))]
+
+    return filtered_data
 
 def get_train_targets(data):
     """Sepperate out features from the training data"""
