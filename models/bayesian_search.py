@@ -39,21 +39,20 @@ def bayes_search_xgboost(model_name="bayes-search-xgboost"):
     ])
 
     # Define the search space for BayesSearchCV
+    # Setting the search space
     search_space_xgboost = {
-        'iterations': Integer(100, 300),
-        'learning_rate': Real(0.01, 0.2, prior='log-uniform'),
-        'depth': Integer(2, 7),
-        'l2_leaf_reg': Real(5, 10, prior='log-uniform'),
-        'border_count': Integer(200, 255),
-        'random_strength': Real(1e-9, 5, prior='log-uniform'),
-        'min_data_in_leaf': Integer(1, 10),
-        'grow_policy': Categorical(['SymmetricTree', 'Depthwise', 'Lossguide']),
-        'bootstrap_type': Categorical(['Bayesian', 'Bernoulli', 'MVS']),
+        'xgboost__learning_rate': Real(0.01, 1.0, 'uniform'),
+        'xgboost__max_depth': Integer(2, 12),
+        'xgboost__subsample': Real(0.1, 1.0, 'uniform'),
+        'xgboost__colsample_bytree': Real(0.1, 1.0, 'uniform'), # subsample ratio of columns by tree
+        'xgboost__reg_lambda': Real(1e-9, 100., 'uniform'), # L2 regularization
+        'xgboost__reg_alpha': Real(1e-9, 100., 'uniform'), # L1 regularization
+        'xgboost__n_estimators': Integer(50, 5000)
     }
 
     def run_bayes_search(X_train, y_train, pipeline, location_name):
         logger.info(f"Fit for location {location_name}")
-        bayes_search = BayesSearchCV(pipeline, search_space_xgboost, cv=5, scoring='neg_mean_squared_error')
+        bayes_search = BayesSearchCV(pipeline, search_space_xgboost, cv=5, scoring='neg_mean_squared_error')                                # random state for replicability
         bayes_search.fit(X_train, y_train)
         logger.info(f"{model_name}-{location_name}: {bayes_search.best_params_}")
         return bayes_search
@@ -62,7 +61,7 @@ def bayes_search_xgboost(model_name="bayes-search-xgboost"):
 
     pipeline = Pipeline([
         ('data_process', data_process_pipeline), 
-        ('xgboost', XGBRegressor(silent=True, random_state=42, objective='reg:squarederror'))
+        ('xgboost', XGBRegressor(silent=True, random_state=42, objective='reg:squarederror', booster='gbtree'))
     ])
     
     with mlflow.start_run(run_name=f'{run_name}_A') as run:
