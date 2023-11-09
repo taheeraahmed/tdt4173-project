@@ -145,8 +145,14 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
 def cyclic_encoding(df):
     df['time'] = pd.to_datetime(df['time'])
     df['normalized_time'] = (df['time'].dt.hour + df['time'].dt.minute / 60 + df['time'].dt.second / 3600) / 24.0
-    df['sine_encoded'] = np.sin(2 * np.pi * df['normalized_time'])
-    df['cosine_encoded'] = np.cos(2 * np.pi * df['normalized_time'])
+    df['sine_encoded_day'] = np.sin(2 * np.pi * df['normalized_time'])
+    df['cosine_encoded_day'] = np.cos(2 * np.pi * df['normalized_time'])
+
+    df['normalized_month'] = (df['time'].dt.month - 1) / 11.0
+    df['sine_month'] = np.sin(2 * np.pi * df['normalized_month'])
+    df['cosine_month'] = np.cos(2 * np.pi * df['normalized_month'])
+
+    df.drop('normalized_month', axis=1, inplace=True)
     df.drop('normalized_time', axis=1, inplace=True)
     return df
 
