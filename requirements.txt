@@ -4,8 +4,10 @@ scikit-learn
 nltk
 ipykernel
 notebook
-autogluon
+autogluon==0.8.2
 catboost
 xgboost
 fastparquet
 pyarrow
+pyfiglet
+mlflow
