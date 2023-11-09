@@ -3,13 +3,15 @@ import numpy as np
 import os
 import logging
 import datetime
+from sklearn.preprocessing import MinMaxScaler
+
 
 def check_file_exists(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, drop_cols=[]):
+def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, drop_cols=[], norm=False):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -95,34 +97,48 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
 
-    if remove_out:
-        logger.info('Removing outliers')
-        data_a = remove_outliers(data_a)
-        data_b = remove_outliers(data_b)
-        data_c = remove_outliers(data_c)
-
     if cust_feat:
         logger.info('Adding custom features')
         data_a = add_custom_features(data_a)
         data_b = add_custom_features(data_b)
         data_c = add_custom_features(data_c)
 
+
+    if remove_out:
+        logger.info('Removing outliers')
+        data_a = remove_outliers(data_a)
+        data_b = remove_outliers(data_b)
+        data_c = remove_outliers(data_c)
+
     if roll_avg:
         logger.info('Adding rolling averages')
         data_a = rolling_average(data_a)
         data_b = rolling_average(data_b)
         data_c = rolling_average(data_c)
-
+    
     if (drop_cols == []):
         pass
     else:
-        #logger.info('Drop cols: ', drop_cols)
+        logger.info('Drop cols: ' + str(drop_cols))
         data_a.drop(columns=drop_cols, errors='ignore', inplace=True)
         data_b.drop(columns=drop_cols, errors='ignore', inplace=True)
         data_c.drop(columns=drop_cols, errors='ignore', inplace=True)
-        
-        
+
+    if norm: 
+        logger.info('Normalizing data')
+        data_a = normalize(data_a)
+        data_b = normalize(data_b)
+        data_c = normalize(data_c)
+
     return data_a, data_b, data_c
+
+
+def normalize(df, columns_to_normalize=None):
+    if columns_to_normalize is None:
+        columns_to_normalize = df.columns  # Normalize all columns by default
+    min_max_scale = lambda col: (col - col.min()) / (col.max() - col.min()) if col.min() != col.max() else col
+    df[columns_to_normalize] = df[columns_to_normalize].apply(min_max_scale)
+    return df
 
 def add_custom_features(X_copy):
     X_copy['month'] = X_copy['time'].apply(lambda x: x.month)
@@ -135,17 +151,12 @@ def add_custom_features(X_copy):
     X_copy["dirrad_airdensity"] = (X_copy['direct_rad:W'] * X_copy['air_density_2m:kgm3'])/1000
     X_copy["ratio_rad1"] = (X_copy['direct_rad:W'] / X_copy['diffuse_rad:W'])
     X_copy["diffrad_airdensity"] = (X_copy['diffuse_rad:W'] * X_copy['air_density_2m:kgm3'])/1000
-
     return X_copy
 
 def get_hourly(df):
-    
     df["minute"] = df["time"].dt.minute
-
     min_vals = df["minute"].unique()
-
     df_list = []
-
     for value in min_vals:
         filtered_data = df[df['minute'] == value].copy()
         filtered_data.drop(columns=['minute'], inplace=True)
@@ -162,9 +173,7 @@ def get_hourly(df):
 
 def get_hourly_mean(df):
     """Returns a dataframe in which """
-    # get a column for the start hour
     df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
-    # get the mean value for the entire hour
     mean_df = df.groupby('time_hour').agg('mean').reset_index()
     return mean_df
 
@@ -188,7 +197,7 @@ def get_train_targets(data):
     return X_train, targets
 
 
-def get_test_data(mean=False, roll_avg=False, cust_feat=False):
+def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_cols=[]):
     """Parse the test data, getting the data that has a kaggle submission id for all locations"""
 
     # --- Check if files exist ---
@@ -237,16 +246,27 @@ def get_test_data(mean=False, roll_avg=False, cust_feat=False):
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
 
-    if roll_avg:
-        
-        X_test_a = rolling_average(X_test_a)
-        X_test_b = rolling_average(X_test_b)
-        X_test_c = rolling_average(X_test_c)
-
     if cust_feat:
         X_test_a = add_custom_features(X_test_a)
         X_test_b = add_custom_features(X_test_b)
         X_test_c = add_custom_features(X_test_c)
+
+    if roll_avg:
+        X_test_a = rolling_average(X_test_a)
+        X_test_b = rolling_average(X_test_b)
+        X_test_c = rolling_average(X_test_c)
+    
+    if (drop_cols == []):
+        pass
+    else:
+        X_test_a = X_test_a.drop(columns=drop_cols, errors='ignore')
+        X_test_b = X_test_b.drop(columns=drop_cols, errors='ignore')
+        X_test_c = X_test_c.drop(columns=drop_cols, errors='ignore')
+
+    if norm: 
+        X_test_a = normalize(X_test_a)
+        X_test_b = normalize(X_test_b)
+        X_test_c = normalize(X_test_c)
 
     return X_test_a, X_test_b, X_test_c
 
