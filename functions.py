@@ -107,17 +107,17 @@ def load_data(mean=False, roll_avg=False, remove_out=False):
 
     if remove_out:
         data_a = remove_ouliers(data_a)
-        data_b = remove_ouliers(data_b)
+        data_b = remove_ouliers(data_b, remove_b_outliers=True)
         data_c = remove_ouliers(data_c)
 
     return data_a, data_b, data_c
 
 
-def remove_ouliers(data):
+def remove_ouliers(data, remove_b_outliers = False):
     """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
 
     threshold = 0.01
-    window_size = 24 
+    window_size = 24
 
     # Calculate standard deviation for each window
     std_dev = data['pv_measurement'].rolling(window=window_size, min_periods=1).std()
@@ -127,6 +127,14 @@ def remove_ouliers(data):
 
     # Filter out constant stretches from the data
     filtered_data = data[~constant_mask]
+
+    if remove_b_outliers:
+        "removing some extra outliers"
+        # Remove rows where pv_measurement > 100 and diffuse_rad:W < 30
+        filtered_data = filtered_data[~((filtered_data["pv_measurement"] > 100) & (filtered_data["diffuse_rad:W"] < 30))]
+
+        # Remove rows where pv_measurement > 200 and diffuse_rad:W < 40
+        filtered_data = filtered_data[~((filtered_data["pv_measurement"] > 200) & (filtered_data["diffuse_rad:W"] < 40))]
 
     return filtered_data
 
