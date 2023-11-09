@@ -35,11 +35,11 @@ def bayes_search_xgboost(model_name="bayes-search-xgboost"):
 
     # Define the data processing pipeline
     data_process_pipeline = Pipeline([
-        ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
+        ('imputer', SimpleImputer(missing_values=np.nan, strategy='median', fill_value=0)),
     ])
 
     # Define the search space for BayesSearchCV
-    search_space_catboost = {
+    search_space_xgboost = {
         'iterations': Integer(100, 300),
         'learning_rate': Real(0.01, 0.2, prior='log-uniform'),
         'depth': Integer(2, 7),
@@ -53,21 +53,26 @@ def bayes_search_xgboost(model_name="bayes-search-xgboost"):
 
     def run_bayes_search(X_train, y_train, pipeline, location_name):
         logger.info(f"Fit for location {location_name}")
-        bayes_search = BayesSearchCV(pipeline, search_space_catboost, cv=5, scoring='neg_mean_squared_error')
+        bayes_search = BayesSearchCV(pipeline, search_space_xgboost, cv=5, scoring='neg_mean_squared_error')
         bayes_search.fit(X_train, y_train)
         logger.info(f"{model_name}-{location_name}: {bayes_search.best_params_}")
         return bayes_search
 
     run_name = generate_run_name()
+
+    pipeline = Pipeline([
+        ('data_process', data_process_pipeline), 
+        ('xgboost', XGBRegressor(silent=True, random_state=42, objective='reg:squarederror'))
+    ])
     
     with mlflow.start_run(run_name=f'{run_name}_A') as run:
-        bayes_search_a = run_bayes_search(X_train_a, y_train_a, XGBRegressor(silent=True, random_state=42, objective='reg:squarederror'), 'A')
+        bayes_search_a = run_bayes_search(X_train_a, y_train_a, pipeline, 'A')
 
     with mlflow.start_run(run_name=f'{run_name}_B') as run:
-        bayes_search_b = run_bayes_search(X_train_b, y_train_b, XGBRegressor(silent=True, random_state=42, objective='reg:squarederror'), 'B')
+        bayes_search_b = run_bayes_search(X_train_b, y_train_b, pipeline, 'B')
 
     with mlflow.start_run(run_name=f'{run_name}_C') as run:
-        bayes_search_c = run_bayes_search(X_train_c, y_train_c, Pipeline([('data_process', data_process_pipeline), ('cat_boost', XGBRegressor(silent=True, random_state=42, objective='reg:squarederror'))]), 'C')
+        bayes_search_c = run_bayes_search(X_train_c, y_train_c, pipeline, 'C')
 
     logger.info("Run pipeline for location A")
     pred_a = bayes_search_a.predict(X_test_a.drop(columns=["id", "prediction", "location"]))
