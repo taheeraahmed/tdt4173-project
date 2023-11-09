@@ -96,6 +96,10 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     data_a = data_a.dropna(subset=['pv_measurement'])
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
+    
+    data_a = data_a.fillna(method='ffill')
+    data_b = data_a.fillna(method='ffill')
+    data_c = data_a.fillna(method='ffill')
 
     if cust_feat:
         logger.info('Adding custom features')
@@ -257,6 +261,10 @@ def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_c
     X_test_a = pd.merge(X_test_estimated_a, kaggle_submission_a, on="time", how="right")
     X_test_b = pd.merge(X_test_estimated_b, kaggle_submission_b, on="time", how="right")
     X_test_c = pd.merge(X_test_estimated_c, kaggle_submission_c, on="time", how="right")
+
+    X_test_a = X_test_a.fillna(method='ffill')
+    X_test_b = X_test_b.fillna(method='ffill')
+    X_test_c = X_test_c.fillna(method='ffill')
 
     if cust_feat:
         X_test_a = add_custom_features(X_test_a)
