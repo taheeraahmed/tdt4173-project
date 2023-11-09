@@ -54,21 +54,21 @@ data_process_pipeline = Pipeline([
 base_modelsA = [
     ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE")),
     ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
-    ('xgb_reg1', XGBRegressor(random_state=12)),
+    ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae")),
     ('xgb_reg2', XGBRegressor(random_state=42)),
 ]
 
 base_modelsB = [
     ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE")),
     ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
-    ('xgb_reg1', XGBRegressor(random_state=12)),
+    ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae")),
     ('xgb_reg2', XGBRegressor(random_state=42)),
 ]
 
 base_modelsC = [
-    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True)),
+    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE")),
     ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
-    ('xgb_reg1', XGBRegressor(random_state=12)),
+    ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae")),
     ('xgb_reg2', XGBRegressor(random_state=42)),
 ]
 
@@ -112,4 +112,4 @@ pred_c = modelC_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "loc
 submission = prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
 submission['prediction'] = submission['prediction'].apply(lambda x: 0 if x < 0.05 else x)
 
-submission.to_csv('submissions/9_nov_2015.csv', index=False)
+submission.to_csv('submissions/9_nov_2035.csv', index=False)
