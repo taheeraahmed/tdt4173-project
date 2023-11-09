@@ -13,9 +13,8 @@ def autogluon(model_name = 'autogluon-with-more-feature-eng'):
     
     drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3',
             'wind_speed_w_1000hPa:ms', 'snow_drift:idx', 'fresh_snow_3h:cm', 'is_in_shadow:idx', 'dew_or_rime:idx', 'fresh_snow_6h:cm', 'prob_rime:p', 'fresh_snow_1h:cm'] # this second line is columns with feature importance == 0
-
-    data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols)
-    X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True, cust_feat=True)
+    data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols, cycle_encoding=True)
+    X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True, cust_feat=True, drop_cols=True, cycle_encoding=True)
 
     logger.info('Done processing data')
     # Specify the column name that contains the target variable to predict
@@ -33,7 +32,12 @@ def autogluon(model_name = 'autogluon-with-more-feature-eng'):
         # the base directory where you want to check/create
         base_path = 'autogluon'  
         model_path = check_create_directory(base_path, run_name+'-'+location)
-        model = TabularPredictor(label=label, problem_type='regression', path=model_path).fit(data)
+        model = TabularPredictor(
+            label=label, 
+            problem_type='regression',
+            path=model_path, 
+            eval_metric='mean_absolute_error'
+        ).fit(data)
         models[location] = model
         logger.info(f'Model saved for location {location} at {model_path}')
         

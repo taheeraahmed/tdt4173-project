@@ -23,13 +23,13 @@ def bayes_search_xgboost(model_name="bayes-search-xgboost"):
     drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3', 
              'wind_speed_w_1000hPa:ms', 'snow_drift:idx', 'fresh_snow_3h:cm', 'is_in_shadow:idx', 'dew_or_rime:idx', 'fresh_snow_6h:cm', 'prob_rime:p'] # this second line is columns with feature importance == 0
 
-    data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols, norm=True)
+    data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols, cycle_encoding=True)
 
     X_train_a, y_train_a = get_train_targets(data_a)
     X_train_b, y_train_b = get_train_targets(data_b)
     X_train_c, y_train_c = get_train_targets(data_c)
 
-    X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True, cust_feat=True, norm=True, drop_cols=True)
+    X_test_a, X_test_b, X_test_c = get_test_data(mean=True, roll_avg=True, cust_feat=True, drop_cols=True, cycle_encoding=True)
 
     logger.info('Done processing data')
 
@@ -61,7 +61,7 @@ def bayes_search_xgboost(model_name="bayes-search-xgboost"):
 
     pipeline = Pipeline([
         ('data_process', data_process_pipeline), 
-        ('xgboost', XGBRegressor(silent=True, random_state=42, objective='reg:squarederror', booster='gbtree'))
+        ('xgboost', XGBRegressor(random_state=42, objective='reg:squarederror', booster='gbtree'))
     ])
     
     with mlflow.start_run(run_name=f'{run_name}_A') as run:

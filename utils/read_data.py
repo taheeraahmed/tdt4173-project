@@ -11,7 +11,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, drop_cols=[], norm=False):
+def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, drop_cols=[], norm=False, cycle_encoding = False):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -98,8 +98,14 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
     data_c = data_c.dropna(subset=['pv_measurement'])
     
     data_a = data_a.fillna(method='ffill')
-    data_b = data_a.fillna(method='ffill')
-    data_c = data_a.fillna(method='ffill')
+    data_b = data_b.fillna(method='ffill')
+    data_c = data_c.fillna(method='ffill')
+
+    if cycle_encoding:
+        data_a = cyclic_encoding(data_a)
+        data_b = cyclic_encoding(data_b)
+        data_c = cyclic_encoding(data_c)
+
 
     if cust_feat:
         logger.info('Adding custom features')
@@ -136,6 +142,14 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
 
     return data_a, data_b, data_c
 
+def cyclic_encoding(df):
+    df['time'] = pd.to_datetime(df['time'])
+    df['normalized_time'] = (df['time'].dt.hour + df['time'].dt.minute / 60 + df['time'].dt.second / 3600) / 24.0
+    df['sine_encoded'] = np.sin(2 * np.pi * df['normalized_time'])
+    df['cosine_encoded'] = np.cos(2 * np.pi * df['normalized_time'])
+    df.drop('normalized_time', axis=1, inplace=True)
+    return df
+
 
 def normalize(df, columns_to_normalize=None):
     if columns_to_normalize is None:
@@ -145,16 +159,17 @@ def normalize(df, columns_to_normalize=None):
     return df
 
 def add_custom_features(X_copy):
-    X_copy['month'] = X_copy['time'].apply(lambda x: x.month)
-    X_copy['hour'] = X_copy['time'].apply(lambda x: x.hour)
+    #X_copy["sun_rad_1"] = (X_copy['sun_azimuth:d'] * X_copy['direct_rad:W']) / 1000000
     X_copy["sun_rad_2"] = (X_copy['sun_elevation:d'] * X_copy['direct_rad:W']) / 1000000
+    #X_copy["sun_wind_1"] = (X_copy['wind_speed_10m:ms'] * X_copy['direct_rad:W']) / 1000
     X_copy["sun_wind_2"] = (X_copy['wind_speed_10m:ms'] * X_copy['diffuse_rad:W']) / 1000
     X_copy["temp_sun"] = (X_copy['t_1000hPa:K'] * X_copy['sun_azimuth:d'])/1000
     X_copy["rad_day_1"] = (X_copy['is_day:idx'] * X_copy['diffuse_rad:W']) / 1000
     X_copy['mult_coulds'] = (X_copy['clear_sky_rad:W'] * X_copy['cloud_base_agl:m']) / 100000
-    X_copy["dirrad_airdensity"] = (X_copy['direct_rad:W'] * X_copy['air_density_2m:kgm3'])/1000
-    X_copy["ratio_rad1"] = (X_copy['direct_rad:W'] / X_copy['diffuse_rad:W'])
-    X_copy["diffrad_airdensity"] = (X_copy['diffuse_rad:W'] * X_copy['air_density_2m:kgm3'])/1000
+    #X_copy["dirrad_airdensity"] = (X_copy['direct_rad:W'] * X_copy['air_density_2m:kgm3'])/1000 #unsure
+    X_copy["ratio_rad1"] = (X_copy['direct_rad:W'] / X_copy['diffuse_rad:W']) # good one!
+    #X_copy["diffrad_airdensity"] = (X_copy['diffuse_rad:W'] * X_copy['air_density_2m:kgm3'])/1000 #unsure
+    X_copy["temp_rad_1"] = (X_copy['t_1000hPa:K'] * X_copy['direct_rad:W'])/1000
     return X_copy
 
 def get_hourly(df):
@@ -182,8 +197,7 @@ def get_hourly_mean(df):
     return mean_df
 
 def remove_ouliers(data, remove_b_outliers = False):
-    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
-
+    """Rem"""
     threshold = 0.01
     window_size = 24
 
@@ -213,7 +227,7 @@ def get_train_targets(data):
     return X_train, targets
 
 
-def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_cols=[]):
+def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_cols=[], cycle_encoding=False):
     """Parse the test data, getting the data that has a kaggle submission id for all locations"""
 
     # --- Check if files exist ---
@@ -265,6 +279,11 @@ def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_c
     X_test_a = X_test_a.fillna(method='ffill')
     X_test_b = X_test_b.fillna(method='ffill')
     X_test_c = X_test_c.fillna(method='ffill')
+
+    if cycle_encoding:
+        X_test_a = cyclic_encoding(X_test_a)
+        X_test_b = cyclic_encoding(X_test_b)
+        X_test_c = cyclic_encoding(X_test_c)
 
     if cust_feat:
         X_test_a = add_custom_features(X_test_a)
