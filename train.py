@@ -1,4 +1,4 @@
-from models.stacked_catboost import stacked_catboost
+from models.bayesian_search import bayes_search_xgboost
 import logging
 from utils.set_up import set_up
 
@@ -7,7 +7,7 @@ def main():
     logger = logging.getLogger()
     logger.info('The training is beginning')
 
-    stacked_catboost()
+    bayes_search_xgboost()
     
 
 if __name__ == "__main__":
