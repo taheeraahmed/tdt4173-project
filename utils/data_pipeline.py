@@ -1,6 +1,6 @@
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
-from utils.feature_fixing import get_hourly, get_hourly_mean, cyclic_encoding, add_custom_features,remove_ouliers, rolling_average, normalize
+from utils.feature_engineering import get_hourly, get_hourly_mean, cyclic_encoding, add_custom_features,remove_ouliers, rolling_average, normalize
 import pandas as pd
 
 """
