@@ -6,8 +6,8 @@
 #SBATCH --nodes=2              # 2 compute nodes
 #SBATCH --ntasks-per-node=1    # 1 mpi process each node
 #SBATCH --mem=12000            # 12GB - in megabytes
-#SBATCH --job-name="autogluon-23-38-10-11-2023"
-#SBATCH --output=idun_out/autogluon-23-38-10-11-2023.out
+#SBATCH --job-name="keno-going-down-23-38-10-11-2023"
+#SBATCH --output=idun_out/keno-going-down-23-38-10-11-2023.out
 #SBATCH --mail-user=taheeraa@ntnu.no
 
 WORKDIR=${SLURM_SUBMIT_DIR}
