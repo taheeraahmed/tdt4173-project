@@ -19,6 +19,7 @@ import logging
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 def fuck_keno(model_name='keno-is-down'):
+    print('train')
     run_name = 'test'
     data_a, data_b, data_c = load_data(mean=True, remove_out=True, roll_avg=True)
 
@@ -126,7 +127,7 @@ def fuck_keno(model_name='keno-is-down'):
 
     submission['prediction'] = submission['prediction'].apply(lambda x: 0 if x < 0.1 else x)
 
-    submission.to_csv('submissions/11_nov_0047.csv', index=False)
+    submission.to_csv('submissions/keno-11_nov_0047.csv', index=False)
 
 class FeatureAdder(BaseEstimator, TransformerMixin):
     """Adds features."""
