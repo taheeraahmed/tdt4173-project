@@ -16,7 +16,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False, roll_avg=False, remove_out=False):
+def load_data(mean=False, mean_stats = False, roll_avg=False, remove_out=False):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -57,7 +57,14 @@ def load_data(mean=False, roll_avg=False, remove_out=False):
         X_train_estimated_a = get_hourly_mean(X_train_estimated_a)
         X_train_estimated_b = get_hourly_mean(X_train_estimated_b)
         X_train_estimated_c = get_hourly_mean(X_train_estimated_c)
+    elif mean_stats:
+        X_train_observed_a = get_hourly_stats(X_train_observed_a)
+        X_train_observed_b = get_hourly_stats(X_train_observed_b)
+        X_train_observed_c = get_hourly_stats(X_train_observed_c)
 
+        X_train_estimated_a = get_hourly_stats(X_train_estimated_a)
+        X_train_estimated_b = get_hourly_stats(X_train_estimated_b)
+        X_train_estimated_c = get_hourly_stats(X_train_estimated_c)
     else:
         X_train_observed_a = get_hourly(X_train_observed_a)
         X_train_observed_b = get_hourly(X_train_observed_b)
@@ -98,6 +105,66 @@ def load_data(mean=False, roll_avg=False, remove_out=False):
     data_a = data_a.dropna(subset=['pv_measurement'])
     data_b = data_b.dropna(subset=['pv_measurement'])
     data_c = data_c.dropna(subset=['pv_measurement'])
+
+    # add columnns for rolling average
+    if roll_avg:
+        data_a = rolling_average(data_a)
+        data_b = rolling_average(data_b)
+        data_c = rolling_average(data_c)
+
+    if remove_out:
+        data_a = remove_ouliers(data_a)
+        data_b = remove_ouliers(data_b, remove_b_outliers=True)
+        data_c = remove_ouliers(data_c)
+
+    return data_a, data_b, data_c
+
+
+def load_data_interpolate(roll_avg=False, remove_out=False):
+    
+    # ---- load data from files ----
+    train_a = pd.read_parquet('data/A/train_targets.parquet')
+    train_b = pd.read_parquet('data/B/train_targets.parquet')
+    train_c = pd.read_parquet('data/C/train_targets.parquet')
+
+    X_train_observed_a = pd.read_parquet('data/A/X_train_observed.parquet').rename(columns={'date_forecast': 'time'})
+    X_train_observed_b = pd.read_parquet('data/B/X_train_observed.parquet').rename(columns={'date_forecast': 'time'})
+    X_train_observed_c = pd.read_parquet('data/C/X_train_observed.parquet').rename(columns={'date_forecast': 'time'})
+
+    X_train_estimated_a = pd.read_parquet('data/A/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
+    X_train_estimated_b = pd.read_parquet('data/B/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
+    X_train_estimated_c = pd.read_parquet('data/C/X_train_estimated.parquet').rename(columns={'date_forecast': 'time'})
+
+    X_train_observed_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_observed_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_observed_c.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
+    X_train_estimated_c.rename(columns={"time_hour": "time"}, inplace=True)
+
+    X_train_observed_a["estimated_flag"] = 0
+    X_train_observed_b["estimated_flag"] = 0
+    X_train_observed_c["estimated_flag"] = 0
+    X_train_estimated_a["estimated_flag"] = 1
+    X_train_estimated_b["estimated_flag"] = 1
+    X_train_estimated_c["estimated_flag"] = 1
+
+    # --- merge observed and estimated data with target data, leave NaN values for pv_measurement ----
+    train_obs_a = pd.merge(train_a, X_train_observed_a, on='time', how='right')
+    train_obs_b = pd.merge(train_b, X_train_observed_b, on='time', how='right')
+    train_obs_c = pd.merge(train_c, X_train_observed_c, on='time', how='right')
+
+    train_est_a = pd.merge(train_a, X_train_estimated_a, on='time', how='right')
+    train_est_b = pd.merge(train_b, X_train_estimated_b, on='time', how='right')
+    train_est_c = pd.merge(train_c, X_train_estimated_c, on='time', how='right')
+
+    data_a = pd.concat([train_obs_a, train_est_a], axis=0, ignore_index=True)
+    data_b = pd.concat([train_obs_b, train_est_b], axis=0, ignore_index=True)
+    data_c = pd.concat([train_obs_c, train_est_c], axis=0, ignore_index=True)
+
+    data_a = fill_pv_values(data_a)
+    data_b = fill_pv_values(data_b)
+    data_c = fill_pv_values(data_c)
 
     # add columnns for rolling average
     if roll_avg:
@@ -172,6 +239,42 @@ def get_hourly_mean(df):
 
     return mean_df
 
+def get_hourly_stats(df, important_features = ['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
+    """Returns a dataframe with hourly mean for all features and min/max for selected important features."""
+    
+    # get a column for the start hour
+    df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
+    
+    # get the mean value for all features for the entire hour
+    mean_df = df.groupby('time_hour').agg('mean').reset_index()
+
+    # get min and max for selected important features
+    min_max_df = df.groupby('time_hour')[important_features].agg(['min', 'max']).reset_index()
+
+    min_max_df.columns = ['{}_{}'.format(col[0], col[1]) if col[1] != 'time_hour' else col[1] for col in min_max_df.columns]
+    min_max_df.rename(columns={"time_hour_":"time_hour"}, inplace=True)
+
+    # merge the mean and min/max dataframes on the time_hour column
+    result_df = pd.merge(mean_df, min_max_df, on='time_hour')
+
+    return result_df
+
+
+def fill_pv_values(df):
+    """Fill the pv-values to account for the entire hour"""
+
+    # get a column for the start hour
+    df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
+
+    # Calculate linear interpolation for each hour
+    df['pv_measurement'] = df.groupby('time_hour')['pv_measurement'].transform(lambda x: x.interpolate())
+
+    # Drop the temporary column used for grouping
+    df = df.drop(columns=["time_hour"])
+
+    return df
+
+
 def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
     
     #hard-code new features #TODO: add as param accessible outside of functions.py
@@ -201,7 +304,7 @@ def get_train_targets(data):
     return X_train, targets
 
 
-def get_test_data(mean=False, roll_avg=False):
+def get_test_data(mean=False, mean_stats=False, roll_avg=False):
     """Parse the test data, getting the data that has a kaggle submission id for all locations"""
 
     # --- Check if files exist ---
@@ -225,10 +328,15 @@ def get_test_data(mean=False, roll_avg=False):
         X_test_estimated_a = get_hourly_mean(X_test_estimated_a)
         X_test_estimated_b = get_hourly_mean(X_test_estimated_b)
         X_test_estimated_c = get_hourly_mean(X_test_estimated_c)
+    elif mean_stats:
+        X_test_estimated_a = get_hourly_stats(X_test_estimated_a)
+        X_test_estimated_b = get_hourly_stats(X_test_estimated_b)
+        X_test_estimated_c = get_hourly_stats(X_test_estimated_c)
     else:
-        X_test_estimated_a = get_hourly(X_test_estimated_a)
-        X_test_estimated_b = get_hourly(X_test_estimated_b)
-        X_test_estimated_c = get_hourly(X_test_estimated_c)
+        # X_test_estimated_a = get_hourly(X_test_estimated_a)
+        # X_test_estimated_b = get_hourly(X_test_estimated_b)
+        # X_test_estimated_c = get_hourly(X_test_estimated_c)
+        pass
 
     X_test_estimated_a.rename(columns={"time_hour": "time"}, inplace=True)
     X_test_estimated_b.rename(columns={"time_hour": "time"}, inplace=True)
