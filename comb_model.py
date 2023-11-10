@@ -52,8 +52,8 @@ data_process_pipeline = Pipeline([
 
 
 base_modelsA = [
-    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE")),
-    ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
+    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", depth=10)),
+    ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
     ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae", colsample_bytree=0.6396572695576039, gamma=0.3122839968432516, learning_rate=0.030962102428926407, max_depth=8, n_estimators=258, subsample=0.9202906451199873)),
     ('xgb_reg2', XGBRegressor(random_state=42)),
     ('xgb_reg3', XGBRegressor(random_state=16, eval_metric="mae")),
@@ -61,16 +61,16 @@ base_modelsA = [
 ]
 
 base_modelsB = [
-    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE")),
-    ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
+    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", depth=10)),
+    ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
     ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae")),
     ('xgb_reg2', XGBRegressor(random_state=42)),
     ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
 ]
 
 base_modelsC = [
-    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE")),
-    ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True)),
+    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", depth=10)),
+    ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
     ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae")),
     ('xgb_reg2', XGBRegressor(random_state=42)),
     ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
@@ -114,6 +114,6 @@ modelC_pipeline.fit(X_train_c, targets_c)
 pred_c = modelC_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
 
 submission = prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
-submission['prediction'] = submission['prediction'].apply(lambda x: 0 if x < 0.05 else x)
+submission['prediction'] = submission['prediction'].apply(lambda x: 0 if x < 0.1 else x)
 
-submission.to_csv('submissions/9_nov_2217.csv', index=False)
+submission.to_csv('submissions/10_nov_1030.csv', index=False)
