@@ -53,7 +53,7 @@ def fuck_keno(model_name='keno-is-down'):
         ('xgb_reg3', XGBRegressor(random_state=16, eval_metric="mae")),
         ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
         ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
-        ('cat_boost4', cb.CatBoostRegressor(random_state=100, silent=True, objective="RMSE", depth=10)), #lagt til
+        ('cat_boost5', cb.CatBoostRegressor(random_state=100, silent=True, objective="RMSE", depth=10)), #lagt til
     ]
 
     base_modelsB = [
