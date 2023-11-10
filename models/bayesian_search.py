@@ -27,11 +27,9 @@ def param_search_bayes_xgboost(model_name="param-search-bayes-xgboost"):
     drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3', 
              'wind_speed_w_1000hPa:ms', 'snow_drift:idx', 'fresh_snow_3h:cm', 'is_in_shadow:idx', 'dew_or_rime:idx', 'fresh_snow_6h:cm', 'prob_rime:p'] # this second line is columns with feature importance == 0
 
-    data_a, _,_ = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols, cycle_encoding=True, mean_stats=True)
+    data_a, _,_ = load_data(mean_stats=True,  roll_avg=True, remove_out=True, cust_feat=True, drop_cols=drop_cols, cycle_encoding = True)
     X_train_a, y_train_a = get_train_targets(data_a)
     data_process_pipeline = Pipeline([
-        ('add_features', FeatureAdder()),
-        ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
         ('standard', StandardScaler()),
     ])
@@ -39,13 +37,13 @@ def param_search_bayes_xgboost(model_name="param-search-bayes-xgboost"):
     logger.info('Done processing data')
 
     search_space_xgboost = {
-        'xgboost__learning_rate': Real(0.01, 1.0, 'uniform'),
+        'xgboost__learning_rate': Real(0.01, 0.3, 'uniform'),
         'xgboost__max_depth': Integer(2, 12),
         'xgboost__subsample': Real(0.1, 1.0, 'uniform'),
         'xgboost__colsample_bytree': Real(0.1, 1.0, 'uniform'), # subsample ratio of columns by tree
-        'xgboost__reg_lambda': Real(1e-9, 100., 'uniform'), # L2 regularization
-        'xgboost__reg_alpha': Real(1e-9, 100., 'uniform'), # L1 regularization
-        'xgboost__n_estimators': Integer(50, 5000)
+        'xgboost__reg_lambda': Real(1e-9, 10., 'uniform'), # L2 regularization
+        'xgboost__reg_alpha': Real(1e-9, 10., 'uniform'), # L1 regularization
+        'xgboost__n_estimators': Integer(50, 1000)
     }
 
     def run_bayes_search(X_train, y_train, pipeline, location_name):
