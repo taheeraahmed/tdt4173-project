@@ -2,17 +2,18 @@
 #SBATCH --partition=CPUQ
 #SBATCH --account=ie-idi
 #SBATCH --time=03:00:00
+#SBATCH --cpus-per-task=2      # 2 CPU cores
 #SBATCH --nodes=2              # 2 compute nodes
 #SBATCH --ntasks-per-node=1    # 1 mpi process each node
 #SBATCH --mem=12000            # 12GB - in megabytes
-#SBATCH --job-name="autogluon-mean"
-#SBATCH --output=idun_out/test-srun.out
+#SBATCH --job-name="autogluon"
+#SBATCH --output=idun_out/autogluon.out
 #SBATCH --mail-user=taheeraa@ntnu.no
 
 WORKDIR=${SLURM_SUBMIT_DIR}
 cd ${WORKDIR}
-echo "we are running from this directory: $SLURM_SUBMIT_DIR"
-echo " the name of the job is: $SLURM_JOB_NAME"
+echo "We are running from this directory: $SLURM_SUBMIT_DIR"
+echo "The name of the job is: $SLURM_JOB_NAME"
 echo "Th job ID is $SLURM_JOB_ID"
 echo "The job was run on these nodes: $SLURM_JOB_NODELIST"
 echo "Number of nodes: $SLURM_JOB_NUM_NODES"
