@@ -58,7 +58,7 @@ def fuck_keno(model_name='keno-is-down'):
         'early_stopping_round': None
     }
     # Create the LGBM model
-    lgb_model = lgb.LGBMModel(**lgb_params)
+    lgb_regressor = lgb.LGBMRegressor(**lgb_params)
     base_modelsA = [
         ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", depth=10)), #andrea gjør søk
         ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
@@ -68,7 +68,7 @@ def fuck_keno(model_name='keno-is-down'):
         ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
         ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
         ('cat_boost5', cb.CatBoostRegressor(random_state=100, silent=True, objective="RMSE", depth=10)), #lagt til
-        ('lgbm', lgb_model)
+        ('lgbm', lgb_regressor)
     ]
 
     base_modelsB = [
