@@ -2,6 +2,7 @@ from skopt import BayesSearchCV
 from skopt.space import Real, Categorical, Integer
 from catboost import CatBoostRegressor
 from xgboost import XGBRegressor
+from sklearn.preprocessing import StandardScaler
 
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -26,12 +27,13 @@ def param_search_bayes_xgboost(model_name="param-search-bayes-xgboost"):
     drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3', 
              'wind_speed_w_1000hPa:ms', 'snow_drift:idx', 'fresh_snow_3h:cm', 'is_in_shadow:idx', 'dew_or_rime:idx', 'fresh_snow_6h:cm', 'prob_rime:p'] # this second line is columns with feature importance == 0
 
-    data_a, _,_ = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols, cycle_encoding=True)
+    data_a, _,_ = load_data(mean=True, remove_out=True, roll_avg=True, cust_feat=True, drop_cols=drop_cols, cycle_encoding=True, mean_stats=True)
     X_train_a, y_train_a = get_train_targets(data_a)
     data_process_pipeline = Pipeline([
         ('add_features', FeatureAdder()),
         ('drop_cols', ColumnDropper(drop_cols=drop_cols)),
         ('imputer', SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=0)),
+        ('standard', StandardScaler()),
     ])
     
     logger.info('Done processing data')
@@ -57,7 +59,7 @@ def param_search_bayes_xgboost(model_name="param-search-bayes-xgboost"):
 
     pipeline = Pipeline([
         ('data_process', data_process_pipeline), 
-        ('xgboost', XGBRegressor(random_state=42, objective='reg:squarederror', booster='gbtree'))
+        ('xgboost', XGBRegressor(random_state=12, eval_metric="mae"))
     ])
     
     logger.info("Run pipeline for location A")

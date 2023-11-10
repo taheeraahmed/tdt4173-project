@@ -10,7 +10,7 @@ def check_file_exists(file_path):
         raise FileNotFoundError(f"File {file_path} does not exist.")
     
 
-def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, drop_cols=[], norm=False, cycle_encoding = False):
+def load_data(mean=False, roll_avg=False, remove_out=False, mean_stats=False, cust_feat=False, drop_cols=[], norm=False, cycle_encoding = False):
     """Loads data, drops rows that have missing values for the target variable."""
 
     # --- Check if files exist ---
@@ -53,7 +53,14 @@ def load_data(mean=False, roll_avg=False, remove_out=False, cust_feat=False, dro
         X_train_estimated_a = get_hourly_mean(X_train_estimated_a)
         X_train_estimated_b = get_hourly_mean(X_train_estimated_b)
         X_train_estimated_c = get_hourly_mean(X_train_estimated_c)
+    elif mean_stats:
+        X_train_observed_a = get_hourly_stats(X_train_observed_a)
+        X_train_observed_b = get_hourly_stats(X_train_observed_b)
+        X_train_observed_c = get_hourly_stats(X_train_observed_c)
 
+        X_train_estimated_a = get_hourly_stats(X_train_estimated_a)
+        X_train_estimated_b = get_hourly_stats(X_train_estimated_b)
+        X_train_estimated_c = get_hourly_stats(X_train_estimated_c)
     else:
         X_train_observed_a = get_hourly(X_train_observed_a)
         X_train_observed_b = get_hourly(X_train_observed_b)
@@ -149,7 +156,7 @@ def get_train_targets(data):
     return X_train, targets
 
 
-def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_cols=[], cycle_encoding=False):
+def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_cols=[], cycle_encoding=False, mean_stats=False):
     """Parse the test data, getting the data that has a kaggle submission id for all locations"""
 
     # --- Check if files exist ---
@@ -173,6 +180,10 @@ def get_test_data(mean=False, roll_avg=False, cust_feat=False, norm=True, drop_c
         X_test_estimated_a = get_hourly_mean(X_test_estimated_a)
         X_test_estimated_b = get_hourly_mean(X_test_estimated_b)
         X_test_estimated_c = get_hourly_mean(X_test_estimated_c)
+    elif mean_stats:
+        X_test_estimated_a = get_hourly_stats(X_test_estimated_a)
+        X_test_estimated_b = get_hourly_stats(X_test_estimated_b)
+        X_test_estimated_c = get_hourly_stats(X_test_estimated_c)
     else:
         X_test_estimated_a = get_hourly(X_test_estimated_a)
         X_test_estimated_b = get_hourly(X_test_estimated_b)
@@ -265,3 +276,24 @@ def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run
     # Save the submission CSV in the specified directory
     submission.to_csv(os.path.join(submission_directory, submission_filename), index=False)
     logger.info("Saved submission file " + formatted_datetime + "-" + run_name + '.csv' )
+
+
+def get_hourly_stats(df, important_features = ['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
+    """Returns a dataframe with hourly mean for all features and min/max for selected important features."""
+    
+    # get a column for the start hour
+    df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
+    
+    # get the mean value for all features for the entire hour
+    mean_df = df.groupby('time_hour').agg('mean').reset_index()
+
+    # get min and max for selected important features
+    min_max_df = df.groupby('time_hour')[important_features].agg(['min', 'max']).reset_index()
+
+    min_max_df.columns = ['{}_{}'.format(col[0], col[1]) if col[1] != 'time_hour' else col[1] for col in min_max_df.columns]
+    min_max_df.rename(columns={"time_hour_":"time_hour"}, inplace=True)
+
+    # merge the mean and min/max dataframes on the time_hour column
+    result_df = pd.merge(mean_df, min_max_df, on='time_hour')
+
+    return result_df

@@ -21,10 +21,10 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_copy = X.copy()
+        X_copy = rolling_average(X_copy)
         X_copy = cyclic_encoding(X.copy)
         X_copy = add_custom_features(X_copy)
         X_copy = remove_ouliers(X_copy)
-        X_copy = rolling_average(X_copy)
         return X_copy
     
 class ColumnDropper(BaseEstimator, TransformerMixin):
