@@ -124,7 +124,7 @@ def fuck_keno(model_name='keno-is-down'):
     modelC_pipeline.fit(X_train_c, targets_c)
     pred_c = modelC_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
 
-    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
+    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name)
 
 class FeatureAdder(BaseEstimator, TransformerMixin):
     """Adds features."""
