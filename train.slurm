@@ -2,11 +2,11 @@
 #SBATCH --partition=CPUQ
 #SBATCH --account=ie-idi
 #SBATCH --time=03:00:00
-#SBATCH --cpus-per-task=2      # 2 CPU cores
+#SBATCH --cpus-per-task=3      # 2 CPU cores
 #SBATCH --nodes=2              # 2 compute nodes
 #SBATCH --ntasks-per-node=1    # 1 mpi process each node
 #SBATCH --mem=12000            # 12GB - in megabytes
-#SBATCH --job-name="autogluon"
+#SBATCH --job-name="new-stacked-catboost"
 #SBATCH --output=idun_out/autogluon.out
 #SBATCH --mail-user=taheeraa@ntnu.no
 
