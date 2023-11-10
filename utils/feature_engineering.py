@@ -24,7 +24,6 @@ def normalize(df, columns_to_normalize=None):
     return df
 
 def add_custom_features(X_copy):
-    # -- additive effects:
     X_copy["sun_rad_1"] = (X_copy['sun_azimuth:d'] * X_copy['direct_rad:W']) / 1000000
     X_copy["sun_rad_2"] = (X_copy['sun_elevation:d'] * X_copy['direct_rad:W']) / 1000000
     #X_copy["sun_wind_1"] = (X_copy['wind_speed_10m:ms'] * X_copy['direct_rad:W']) / 1000

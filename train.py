@@ -1,5 +1,5 @@
 from utils.set_up import set_up
-from models.beat_keno import fuck_keno
+from models.autogluon import autogluon
 import logging
 
 def main():
@@ -7,7 +7,7 @@ def main():
     logger = logging.getLogger()
     logger.info('The training is beginning')
 
-    fuck_keno()
+    autogluon()
 
 if __name__ == "__main__":
     main()

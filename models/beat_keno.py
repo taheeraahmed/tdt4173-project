@@ -62,7 +62,7 @@ def fuck_keno(model_name='keno-is-down'):
     base_modelsA = [
         ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", depth=10)), #andrea gjør søk
         ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
-        ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae")), #Taheera gjør søk
+        ('xgb_reg1', XGBRegressor(random_state=18, eval_metric="mae")), #Taheera gjør søk
         ('xgb_reg2', XGBRegressor(random_state=42)),
         ('xgb_reg3', XGBRegressor(random_state=16, eval_metric="mae")),
         ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
