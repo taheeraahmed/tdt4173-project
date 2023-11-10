@@ -36,7 +36,11 @@ def autogluon(model_name = 'autogluon-with-more-feature-eng'):
             label=label, 
             problem_type='regression',
             path=model_path, 
-            eval_metric='mean_absolute_error'
+            eval_metric='mean_absolute_error',
+            presets='best_quality',
+            num_bag_folds=5, 
+            num_bag_sets=1, 
+            num_stack_levels=1,
         ).fit(data)
         models[location] = model
         logger.info(f'Model saved for location {location} at {model_path}')
