@@ -10,4 +10,5 @@ xgboost
 fastparquet
 pyarrow
 pyfiglet
+scikit-optimize
 mlflow
