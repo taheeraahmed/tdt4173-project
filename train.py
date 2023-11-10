@@ -1,4 +1,4 @@
-from models.bayesian_search import bayes_search_xgboost
+from models.bayesian_search import param_search_bayes_xgboost
 import logging
 from utils.set_up import set_up
 
@@ -7,7 +7,7 @@ def main():
     logger = logging.getLogger()
     logger.info('The training is beginning')
 
-    bayes_search_xgboost()
+    param_search_bayes_xgboost()
     
 
 if __name__ == "__main__":
