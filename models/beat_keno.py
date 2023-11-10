@@ -66,7 +66,7 @@ def fuck_keno(model_name='keno-is-down'):
         'learning_rate': 0.012997359346271088
     }
     # Create the LGBM model
-    lgb_regressor = lgb.LGBMRegressor(**lgb_params_jita_mira)
+    #lgb_regressor = lgb.LGBMRegressor(**lgb_params_jita_mira)
     base_modelsA = [
         ('cat_boost1', cb.CatBoostRegressor(**catboost_params_11_11_00_14)), #andrea gjør søk
         ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
@@ -76,7 +76,7 @@ def fuck_keno(model_name='keno-is-down'):
         ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
         ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
         ('cat_boost5', cb.CatBoostRegressor(random_state=100, silent=True, objective="RMSE", depth=10)), #lagt til
-        ('lgbm', lgb_regressor)
+        #('lgbm', lgb_regressor)
     ]
 
     base_modelsB = [
