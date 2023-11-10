@@ -12,3 +12,4 @@ pyarrow
 pyfiglet
 scikit-optimize
 mlflow
+lightgbm

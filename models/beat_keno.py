@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
 import catboost as cb
+import lightgbm as lgb
 import warnings
 from sklearn.ensemble import StackingRegressor
 from sklearn.linear_model import LinearRegression
@@ -45,6 +46,19 @@ def fuck_keno(model_name='keno-is-down'):
         ('standar', StandardScaler()),
     ])
 
+    lgb_params = {
+        'learning_rate': 0.05,
+        'extra_trees': True,
+        'num_threads': 24,
+        'objective': 'regression',
+        'verbose': -1,
+        'metric': 'rmse',
+        'seed': 0,
+        'num_iterations': 10000,
+        'early_stopping_round': None
+    }
+    # Create the LGBM model
+    lgb_model = lgb.LGBMModel(**lgb_params)
     base_modelsA = [
         ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", depth=10)), #andrea gjør søk
         ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
@@ -54,6 +68,7 @@ def fuck_keno(model_name='keno-is-down'):
         ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
         ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
         ('cat_boost5', cb.CatBoostRegressor(random_state=100, silent=True, objective="RMSE", depth=10)), #lagt til
+        ('lgbm', lgb_model)
     ]
 
     base_modelsB = [
