@@ -86,14 +86,15 @@ def remove_ouliers(data, remove_b_outliers = False):
     return filtered_data
 
 def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
+    #hard-code new features #TODO: add as param accessible outside of functions.py
+    features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'visibility:m',] # just this 7 nov # 'snow_water:kgm2'
+               # 'clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d'] # added for 8 nov
+    
     # Ensure the 'time' column is datetime and set as index
     df['time'] = pd.to_datetime(df['time'])
     df.set_index('time', inplace=True, drop=False)
     df.sort_index(inplace=True)
-    
-    features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'snow_water:kgm2', 'visibility:m', # just this 7 nov
-                'clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d'] # added for 8 nov
-    
+
     # Calculate rolling averages for the specified features
     for feature in features:
         rolling_feature_name = f"{feature}_rolling_avg_{window_size}"
@@ -101,4 +102,5 @@ def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_
 
     # Handle missing data if necessary
     df.fillna(method='bfill', inplace=True)  # Forward fill
+
     return df
