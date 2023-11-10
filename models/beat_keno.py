@@ -46,7 +46,7 @@ def fuck_keno(model_name='keno-is-down'):
         ('standar', StandardScaler()),
     ])
 
-    lgb_params = {
+    lgb_params_jita_mira = {
         'learning_rate': 0.05,
         'extra_trees': True,
         'num_threads': 24,
@@ -57,10 +57,18 @@ def fuck_keno(model_name='keno-is-down'):
         'num_iterations': 10000,
         'early_stopping_round': None
     }
+
+    catboost_params_11_11_00_14 = {
+        'border_count': 157,
+        'depth': 13,
+        'iterations': 828,
+        'l2_leaf_reg': 7.677745179031975,
+        'learning_rate': 0.012997359346271088
+    }
     # Create the LGBM model
-    lgb_regressor = lgb.LGBMRegressor(**lgb_params)
+    lgb_regressor = lgb.LGBMRegressor(**lgb_params_jita_mira)
     base_modelsA = [
-        ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", depth=10)), #andrea gjør søk
+        ('cat_boost1', cb.CatBoostRegressor(**catboost_params_11_11_00_14)), #andrea gjør søk
         ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
         ('xgb_reg1', XGBRegressor(random_state=18, eval_metric="mae")), #Taheera gjør søk
         ('xgb_reg2', XGBRegressor(random_state=42)),
