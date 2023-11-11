@@ -78,12 +78,13 @@ catboost_params_11_11_00_14 = {
 }
 base_modelsA = [
     ('cat_boost1', cb.CatBoostRegressor(**catboost_params_11_11_00_14)), #andrea gjør søk
-    ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=11)),
+    ('cat_boost2', cb.CatBoostRegressor(random_state=12, silent=True, depth=14)),
     ('xgb_reg1', XGBRegressor(random_state=18, eval_metric="mae")), #Taheera gjør søk
     ('xgb_reg3', XGBRegressor(random_state=16, eval_metric="mae")),
     ('cat_boost3', cb.CatBoostRegressor(random_state=23, silent=True)),
     ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
-    ('cat_boost5', cb.CatBoostRegressor(random_state=70, silent=True, objective="MAE", depth=11)), #lagt til
+    ('cat_boost5', cb.CatBoostRegressor(random_state=71, silent=True, objective="MAE", depth=11)),
+    ('cat_boost5', cb.CatBoostRegressor(random_state=220, silent=True, objective="mae", depth=11)), #lagt til
 ]
 
 base_modelsB = [
