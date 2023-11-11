@@ -108,7 +108,4 @@ print("training location C model")
 whole_model_pipeline.fit(X_train_c, targets_c)
 pred_c = whole_model_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
 
-submission = prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
-submission['prediction'] = submission['prediction'].apply(lambda x: 0 if x < 0.05 else x)
-
-submission.to_csv('submissions/stacked_catboost_7_nov_rand_search_params.csv', index=False)
+prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)

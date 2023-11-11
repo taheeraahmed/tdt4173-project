@@ -95,8 +95,7 @@ def comb_model(model_name="comb-model"):
     modelC_pipeline.fit(X_train_c, targets_c)
     pred_c = modelC_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
 
-    submission = prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
-    submission.to_csv('submissions/11_nov_1055.csv', index=False)
+    prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
 
 
 class ColumnDropper(BaseEstimator, TransformerMixin):
