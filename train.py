@@ -1,5 +1,4 @@
 from utils.set_up import set_up
-from models.autogluon import autogluon
 from models.beat_keno import fuck_keno
 import logging
 
