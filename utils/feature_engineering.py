@@ -1,8 +1,11 @@
 import pandas as pd 
 import numpy as np
-def remove_outliers(data, remove_b_outliers = False):
-    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
+import logging
 
+def remove_outliers(data, remove_b_outliers = False):
+    logger = logging.getLogger()
+    """Removes datapoints that have been static over long stretches (likely due to sensor error!)."""
+    logger.info('Removing outliers')
     threshold = 0.01
     window_size = 24
 
@@ -27,6 +30,8 @@ def remove_outliers(data, remove_b_outliers = False):
 
 
 def get_hourly(df):
+    logger = logging.getLogger()
+    logger.info('Getting hourly data')
     
     df["minute"] = df["time"].dt.minute
 
@@ -49,6 +54,8 @@ def get_hourly(df):
     return merged_df
 
 def get_hourly_mean(df):
+    logger = logging.getLogger()
+    logger.info('Getting hourly mean')
     """Returns a dataframe in which """
     
     # get a column for the start hour
@@ -61,7 +68,8 @@ def get_hourly_mean(df):
 
 def get_hourly_stats(df, important_features = ['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
     """Returns a dataframe with hourly mean for all features and min/max for selected important features."""
-    
+    logger = logging.getLogger()
+    logger.info('Getting hourly stats')
     # get a column for the start hour
     df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
     
@@ -82,6 +90,8 @@ def get_hourly_stats(df, important_features = ['clear_sky_energy_1h:J','clear_sk
 
 def fill_pv_values(df):
     """Fill the pv-values to account for the entire hour"""
+    logger = logging.getLogger()
+    logger.info('Filling pv values')
 
     # get a column for the start hour
     df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
@@ -96,6 +106,9 @@ def fill_pv_values(df):
 
 
 def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d']):
+    """Calculates rolling averages for the specified features."""
+    logger = logging.getLogger()
+    logger.info('Calculating rolling averages')
     #hard-code new features #TODO: add as param accessible outside of functions.py
     features = ['precip_5min:mm', 'rain_water:kgm2', 'prob_rime:p', 't_1000hPa:K', 'visibility:m',] # just this 7 nov # 'snow_water:kgm2'
                # 'clear_sky_energy_1h:J','clear_sky_rad:W', 'direct_rad:W', 'direct_rad_1h:J', 'diffuse_rad:W', 'diffuse_rad_1h:J', 'total_cloud_cover:p', 'sun_elevation:d'] # added for 8 nov
