@@ -23,6 +23,7 @@ def param_search_bayes_xgboost(model_name="param-search-bayes-xgboost"):
     logger = logging.getLogger()
 
     logger.info('Processing data')
+    logger.info(model_name)
 
     drop_cols = ['time', 'elevation:m', 'fresh_snow_1h:cm', 'ceiling_height_agl:m', 'snow_density:kgm3', 
              'wind_speed_w_1000hPa:ms', 'snow_drift:idx', 'fresh_snow_3h:cm', 'is_in_shadow:idx', 'dew_or_rime:idx', 'fresh_snow_6h:cm', 'prob_rime:p'] # this second line is columns with feature importance == 0
@@ -41,9 +42,9 @@ def param_search_bayes_xgboost(model_name="param-search-bayes-xgboost"):
         'xgboost__max_depth': Integer(2, 12),
         'xgboost__subsample': Real(0.1, 1.0, 'uniform'),
         'xgboost__colsample_bytree': Real(0.1, 1.0, 'uniform'), # subsample ratio of columns by tree
-        'xgboost__reg_lambda': Real(1e-9, 10., 'uniform'), # L2 regularization
-        'xgboost__reg_alpha': Real(1e-9, 10., 'uniform'), # L1 regularization
-        'xgboost__n_estimators': Integer(50, 1000)
+        'xgboost__reg_lambda': Real(1e-9, 1e-4, 'uniform'), # L2 regularization
+        'xgboost__reg_alpha': Real(1e-9, 1e-4, 'uniform'), # L1 regularization
+        'xgboost__n_estimators': Integer(50, 500)
     }
 
     def run_bayes_search(X_train, y_train, pipeline, location_name):
