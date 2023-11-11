@@ -127,3 +127,16 @@ def rolling_average(df, window_size=24,features=['clear_sky_energy_1h:J','clear_
     df.fillna(method='bfill', inplace=True)  # Forward fill
 
     return df
+
+def cyclic_encoding(df):
+    df['time'] = pd.to_datetime(df['time'])
+    df['normalized_time'] = (df['time'].dt.hour + df['time'].dt.minute / 60 + df['time'].dt.second / 3600) / 24.0
+    df['sine_encoded'] = np.sin(2 * np.pi * df['normalized_time'])
+    df['cosine_encoded'] = np.cos(2 * np.pi * df['normalized_time'])
+
+    month = df['time'].dt.month
+    df['sine_encoded_month'] = np.sin(2 * np.pi * month)
+    df['cosine_encoded_month'] = np.cos(2 * np.pi * month)
+
+    df.drop('normalized_time', axis=1, inplace=True)
+    return df

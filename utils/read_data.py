@@ -251,7 +251,7 @@ def get_test_data(mean=False, mean_stats=False, roll_avg=False):
     return X_test_a, X_test_b, X_test_c
 
 
-def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name='Default'):
+def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run_name='default-run-name'):
     """Parses the test data and predictions into a single df in kaggle submission format"""
     logger = logging.getLogger()
     

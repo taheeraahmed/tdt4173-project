@@ -1,6 +1,6 @@
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
-from utils.feature_engineering import get_hourly, get_hourly_mean, cyclic_encoding, add_custom_features,remove_ouliers, rolling_average, normalize
+from utils.feature_engineering import cyclic_encoding
 import pandas as pd
 
 """
@@ -27,18 +27,7 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         return self
     
-    def cyclic_encoding(self, df):
-        df['time'] = pd.to_datetime(df['time'])
-        df['normalized_time'] = (df['time'].dt.hour + df['time'].dt.minute / 60 + df['time'].dt.second / 3600) / 24.0
-        df['sine_encoded'] = np.sin(2 * np.pi * df['normalized_time'])
-        df['cosine_encoded'] = np.cos(2 * np.pi * df['normalized_time'])
 
-        month = df['time'].dt.month
-        df['sine_encoded_month'] = np.sin(2 * np.pi * month)
-        df['cosine_encoded_month'] = np.cos(2 * np.pi * month)
-
-        df.drop('normalized_time', axis=1, inplace=True)
-        return df
 
     def transform(self, X):
         X_copy = X.copy()
@@ -49,7 +38,7 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
         # # add hour
         # X_copy['hour'] = X_copy['time'].apply(lambda x: x.hour)
 
-        X_copy = self.cyclic_encoding(X_copy)
+        X_copy = cyclic_encoding(X_copy)
 
         # -- additive effects:
         X_copy["sun_rad_1"] = (X_copy['sun_azimuth:d'] * X_copy['direct_rad:W']) / 1000000
