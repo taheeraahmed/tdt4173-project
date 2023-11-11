@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from functions import load_data, get_train_targets, get_test_data, prepare_submission, remove_ouliers
+from utils.read_data import load_data, get_train_targets, get_test_data, prepare_submission
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
@@ -44,7 +44,7 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
         X_copy['hour'] = X_copy['time'].apply(lambda x: x.hour)
 
         # -- additive effects:
-        #X_copy["sun_rad_1"] = (X_copy['sun_azimuth:d'] * X_copy['direct_rad:W']) / 1000000
+        X_copy["sun_rad_1"] = (X_copy['sun_azimuth:d'] * X_copy['direct_rad:W']) / 1000000
         X_copy["sun_rad_2"] = (X_copy['sun_elevation:d'] * X_copy['direct_rad:W']) / 1000000
         #X_copy["sun_wind_1"] = (X_copy['wind_speed_10m:ms'] * X_copy['direct_rad:W']) / 1000
         X_copy["sun_wind_2"] = (X_copy['wind_speed_10m:ms'] * X_copy['diffuse_rad:W']) / 1000

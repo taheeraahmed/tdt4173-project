@@ -8,7 +8,7 @@ import catboost as cb
 import warnings
 from sklearn.ensemble import StackingRegressor
 from sklearn.linear_model import LinearRegression
-from utils.data_pipeline import FeatureAdder
+from utils.data_pipeline import FeatureAdder, ColumnDropper
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
 
@@ -96,17 +96,3 @@ def comb_model(model_name="comb-model"):
     pred_c = modelC_pipeline.predict(X_test_c.drop(columns=["id", "prediction", "location"]))
 
     prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c)
-
-
-class ColumnDropper(BaseEstimator, TransformerMixin):
-    """Drops columns from the data."""
-
-    def __init__(self, drop_cols = []):
-        self.drop_cols = drop_cols
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        X_copy = X.copy()
-        return X_copy.drop(columns=self.drop_cols)
