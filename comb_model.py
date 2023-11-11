@@ -84,7 +84,7 @@ base_modelsA = [
     ('cat_boost3', cb.CatBoostRegressor(random_state=23, silent=True)),
     ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
     ('cat_boost5', cb.CatBoostRegressor(random_state=71, silent=True, objective="MAE", depth=11)),
-    ('cat_boost5', cb.CatBoostRegressor(random_state=220, silent=True, objective="mae", depth=11)), #lagt til
+    ('cat_boost6', cb.CatBoostRegressor(random_state=220, silent=True, objective="MAE", depth=11)), #lagt til
 ]
 
 base_modelsB = [
@@ -104,7 +104,7 @@ base_modelsC = [
 ]
 
 # Define meta-learner
-meta_learnerA = LinearRegression()
+meta_learnerA = cb.CatBoostRegressor(random_state=35)
 meta_learnerB = LinearRegression()
 meta_learnerC = LinearRegression()
 
