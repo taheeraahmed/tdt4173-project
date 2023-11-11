@@ -9,7 +9,7 @@ def set_up():
     print(result) 
 
     random.seed(10)
-    LOG_FILE = "log_file.txt"
+    LOG_FILE = "logs/log_file.txt"
     WARNINGS_TO_SUPPRESS = [
         ("ignore", UserWarning, "_distutils_hack"),
         ("ignore", FutureWarning, "mlflow.data.digest_utils"),
