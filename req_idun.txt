@@ -4,3 +4,6 @@ pandas
 numpy
 xgboost 
 os
+pyfiglet
+random 
+nltk

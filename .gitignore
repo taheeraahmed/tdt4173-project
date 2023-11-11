@@ -15,6 +15,7 @@ idun_out/
 submissions/
 catboost_info/
 AutogluonModels/
+autogluon/
 
 # Log files
 logs/
