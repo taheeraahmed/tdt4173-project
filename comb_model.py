@@ -14,6 +14,7 @@ from sklearn.linear_model import LinearRegression
 from featureadder import FeatureAdder
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
+import lightgbm as lgb
 
 # Suppress all FutureWarnings
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -51,14 +52,22 @@ data_process_pipeline = Pipeline([
 ])
 
 
+catboost_params_11_11_00_14 = {
+    'border_count': 157,
+    'depth': 13,
+    'iterations': 828,
+    'l2_leaf_reg': 7.677745179031975,
+    'learning_rate': 0.012997359346271088
+}
 base_modelsA = [
-    ('cat_boost1', cb.CatBoostRegressor(random_state=1, silent=True, objective="MAE", border_count=157, depth=13, iterations=828, l2_leaf_reg=7.677745179031975, learning_rate=0.012997359346271088)), #andrea gjør søk
+    ('cat_boost1', cb.CatBoostRegressor(**catboost_params_11_11_00_14)), #andrea gjør søk
     ('cat_boost2', cb.CatBoostRegressor(random_state=2, silent=True, depth=10)),
-    ('xgb_reg1', XGBRegressor(random_state=12, eval_metric="mae", colsample_bytree=0.588602113426499, max_depth=12, n_estimators=500, reg_alpha=1e-09, reg_lambda=0.0001, xee=0.588602113426499, learning_rate=0.023222800065583988,gboost__subsample=0.4665774062657444)), #Taheera gjør søk
+    ('xgb_reg1', XGBRegressor(random_state=18, eval_metric="mae")), #Taheera gjør søk
     ('xgb_reg2', XGBRegressor(random_state=42)),
     ('xgb_reg3', XGBRegressor(random_state=16, eval_metric="mae")),
-    ('cat_boost3', cb.CatBoostRegressor(random_state=3, silent=True)),
-    #('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
+    ('cat_boost3', cb.CatBoostRegressor(random_state=23, silent=True)),
+    ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
+    ('cat_boost5', cb.CatBoostRegressor(random_state=90, silent=True, objective="MAE", depth=11)), #lagt til
 ]
 
 base_modelsB = [
