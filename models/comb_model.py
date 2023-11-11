@@ -1,14 +1,10 @@
 import pandas as pd
 import numpy as np
 from utils.read_data import load_data, get_train_targets, get_test_data, prepare_submission
-from utils.feature_engineering import remove_ouliers
-from sklearn.model_selection import RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
-from sklearn.ensemble import RandomForestRegressor
 import catboost as cb
-from scipy.stats import uniform, randint
 import warnings
 from sklearn.ensemble import StackingRegressor
 from sklearn.linear_model import LinearRegression
