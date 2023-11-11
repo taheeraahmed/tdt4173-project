@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1    # 1 mpi process each node
 #SBATCH --mem=12000            # 12GB - in megabytes
 #SBATCH --job-name="fuck-keno"
-#SBATCH --output=idun_out/comb_models-fuck-keno-3.out
+#SBATCH --output=logs/idun_output/comb_models-fuck-keno-3.out
 #SBATCH --mail-user=taheeraa@ntnu.no
 
 WORKDIR=${SLURM_SUBMIT_DIR}
