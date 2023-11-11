@@ -13,3 +13,4 @@ pyfiglet
 scikit-optimize
 mlflow
 lightgbm
+os

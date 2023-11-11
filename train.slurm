@@ -22,5 +22,5 @@ echo "Total of $SLURM_NTASKS cores"
 
 module purge
 module load Python/3.10.8-GCCcore-12.2.0
-pip install -r req_idun.txt
-python comb_model.py
+pip install -r requirements.txt
+python train.py
