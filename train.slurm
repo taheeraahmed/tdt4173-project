@@ -5,8 +5,8 @@
 #SBATCH --nodes=2              # 2 compute nodes
 #SBATCH --ntasks-per-node=1    # 1 mpi process each node
 #SBATCH --mem=12000            # 12GB - in megabytes
-#SBATCH --job-name="autogluon-mean"
-#SBATCH --output=idun_out/test-srun.out
+#SBATCH --job-name="fuck-keno"
+#SBATCH --output=idun_out/comb_models-fuck-keno-3.out
 #SBATCH --mail-user=taheeraa@ntnu.no
 
 WORKDIR=${SLURM_SUBMIT_DIR}
@@ -23,5 +23,4 @@ echo "Total of $SLURM_NTASKS cores"
 module purge
 module load Python/3.10.8-GCCcore-12.2.0
 pip install -r req_idun.txt
-
-python train.py
+python comb_model.py
