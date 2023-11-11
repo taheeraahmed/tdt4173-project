@@ -282,3 +282,4 @@ def prepare_submission(X_test_a, X_test_b, X_test_c, pred_a, pred_b, pred_c, run
     # Save the submission CSV in the specified directory
     submission.to_csv(os.path.join(submission_directory, submission_filename), index=False)
     logger.info("Saved submission file " + formatted_datetime + "-" + run_name + '.csv' )
+    return submission
