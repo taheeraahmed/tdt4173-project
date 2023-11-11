@@ -285,10 +285,10 @@ def get_hourly_stats(df, important_features = ['clear_sky_energy_1h:J','clear_sk
     df["time_hour"] = df["time"].apply(lambda x: x.floor('H'))
     
     # get the mean value for all features for the entire hour
-    mean_df = df.groupby('time_hour').agg('mean').reset_index()
+    mean_df = df.groupby('time_hour').agg('mean', numeric_only=True).reset_index()
 
     # get min and max for selected important features
-    min_max_df = df.groupby('time_hour')[important_features].agg(['min', 'max']).reset_index()
+    min_max_df = df.groupby('time_hour')[important_features].agg(['min', 'max'], numeric_only=True).reset_index()
 
     min_max_df.columns = ['{}_{}'.format(col[0], col[1]) if col[1] != 'time_hour' else col[1] for col in min_max_df.columns]
     min_max_df.rename(columns={"time_hour_":"time_hour"}, inplace=True)
