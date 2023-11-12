@@ -32,6 +32,8 @@ logger = logging.getLogger()
 run_name = generate_run_name()
 
 logger.info('Started processing data')
+string_run = 'Run name: ' + run_name
+logger.info(string_run)
 
 data_a, data_b, data_c = load_data(mean_stats=True, remove_out=True, roll_avg=True)
 
@@ -74,17 +76,17 @@ catboost_params_11_11_00_14 = {
     'depth': 13,
     'iterations': 828,
     'l2_leaf_reg': 7.677745179031975,
-    'learning_rate': 0.012997359346271088
+    'learning_rate': 0.012997359346271088,
+    'random_state': 144,
 }
 base_modelsA = [
     ('cat_boost1', cb.CatBoostRegressor(**catboost_params_11_11_00_14)), #andrea gjør søk
     ('cat_boost2', cb.CatBoostRegressor(random_state=12, silent=True, depth=14)),
     ('xgb_reg1', XGBRegressor(random_state=18, eval_metric="mae")), #Taheera gjør søk
     ('xgb_reg3', XGBRegressor(random_state=16, eval_metric="mae")),
-    ('cat_boost3', cb.CatBoostRegressor(random_state=23, silent=True)),
+    ('cat_boost3', cb.CatBoostRegressor(random_state=23, silent=True, depth=13)),
     ('cat_boost4', cb.CatBoostRegressor(random_state=32, silent=True, objective="MAE", depth=10)), #lagt til
-    ('cat_boost5', cb.CatBoostRegressor(random_state=71, silent=True, objective="MAE", depth=11)),
-    ('cat_boost6', cb.CatBoostRegressor(random_state=220, silent=True, objective="MAE", depth=11)), #lagt til
+    ('cat_boost5', cb.CatBoostRegressor(random_state=21, silent=True, objective="MAE", depth=11)),
 ]
 
 base_modelsB = [
