@@ -1,14 +1,22 @@
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+autogluon/
 
 # Virtual environment (if you're using one)
 venv/
 env/
 tdt4173-project/
+mlruns/
+.venv/
+idun_out/
+
+*.txt
 
 # Data and model files (customize as needed)
-models/
 submissions/
+catboost_info/
+AutogluonModels/
+autogluon/
 
 # Log files
 logs/
